@@ -1,7 +1,6 @@
 {
   "name": "@eventlane/board-ui",
   "version": "0.1.0",
-  "private": true,
   "description": "EventLane board: the single-page web UI, shipped as static files",
   "license": "MIT",
   "repository": {
@@ -49,5 +48,8 @@
     "@preact/preset-vite": "^2.10.6",
     "@testing-library/preact": "^3.2.6",
     "happy-dom": "^21.0.4"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

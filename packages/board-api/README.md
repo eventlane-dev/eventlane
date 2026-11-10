@@ -2,7 +2,13 @@
 
 The framework-neutral JSON API of the EventLane dashboard: `createBoardApi(options).handle(request)` answers `{ status, body }` for topics, events, consumers and dead letters, and for the write actions. It has no HTTP framework dependency; the adapters translate requests.
 
-> Part of [EventLane](../../README.md).
+> Part of [EventLane](https://github.com/eventlane-dev/eventlane).
+
+## Install
+
+```bash
+npm install @eventlane/board-api @eventlane/core
+```
 
 ## Build and test
 
@@ -17,4 +23,4 @@ To build an adapter for another framework, see "Other frameworks" in the dashboa
 
 ## Documentation
 
-- [Dashboard: getting started](../../docs/dashboard/getting-started.md) (options), [HTTP API](../../docs/dashboard/api.md)
+- [Dashboard: getting started](https://eventlane-dev.github.io/eventlane/dashboard/getting-started) (options), [HTTP API](https://eventlane-dev.github.io/eventlane/dashboard/api)

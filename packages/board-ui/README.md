@@ -2,7 +2,15 @@
 
 The web UI of the EventLane dashboard: a small Preact single-page app built with Vite to static files. It talks to the board API with relative URLs, so it works under any mount path. The package also exports `uiDirectory`, the folder with the built files, which the adapters serve.
 
-> Part of [EventLane](../../README.md).
+> Part of [EventLane](https://github.com/eventlane-dev/eventlane).
+
+## Install
+
+```bash
+npm install @eventlane/board-ui
+```
+
+The adapters (`@eventlane/board-express`, `@eventlane/board-fastify`) already depend on it; install it directly only to write your own adapter.
 
 ## Build and test
 
@@ -24,4 +32,4 @@ The dev server proxies `/api` to that board, so you see real data while editing 
 
 ## Documentation
 
-- [Dashboard: overview](../../docs/dashboard/overview.md), [getting started](../../docs/dashboard/getting-started.md)
+- [Dashboard: overview](https://eventlane-dev.github.io/eventlane/dashboard/overview), [getting started](https://eventlane-dev.github.io/eventlane/dashboard/getting-started)

@@ -4,12 +4,12 @@ Guidance for AI coding agents (and humans) working in this repository.
 
 ## What this is
 
-EventLane: a persistent event bus on Redis Streams for Node.js and NestJS, plus a dashboard for it, as a pnpm monorepo (see the package list in `README.md`). What is not built, still open or not verified is in `OPEN.md` at the root; how things work is in `docs/`.
+EventLane: a persistent event bus on Redis Streams for Node.js and NestJS, plus a dashboard for it, as a pnpm monorepo (see the package list in `README.md`). How things work is in `docs/`.
 
 ## Source of truth
 
 1. `docs/` is the user documentation and must match the code. When behavior changes, change the docs **in the same change**. It contains no decisions, plans or status notes.
-2. `OPEN.md` (root) lists only what is not done or not known yet. When an item is done or decided, delete it: the result belongs in `docs/` or the code. Do not keep decision logs, and do not add open items to `docs/` or to new markdown files.
+2. Do not keep decision logs, plans or open-item lists in `docs/` or in new markdown files.
 3. `docs/core/redis-data-model.md` must match the actual Redis keys and entry fields.
 4. The docs are a VitePress site in three sections: `docs/core/` (the framework-independent library and its concepts), `docs/nestjs/` and `docs/dashboard/`. Keep each page in its section: core pages never depend on Nest, and Nest-specific options live in `docs/nestjs/configuration.md`. A new page must also be added to the sidebar in `docs/.vitepress/config.mts`. Run `pnpm docs:build` after docs changes: it fails on dead links.
 
@@ -39,7 +39,6 @@ examples/express/       plain Express app with the core, no dashboard (runnable:
 examples/nestjs/        monolith with two consumers on one topic and the dashboard (runnable: `pnpm --filter @eventlane/example-nestjs start`)
 examples/board/         Express app with demo traffic and the board (runnable: `pnpm --filter @eventlane/example-board start`)
 docs/                   user documentation, a VitePress site: core/, nestjs/, dashboard/
-OPEN.md                  what is not built, open or not verified
 ```
 
 ## Commands (pnpm)
@@ -62,7 +61,7 @@ Tooling notes:
 - Development needs Node 22.18+ (tsup, vitest); the published packages target Node 20+.
 - TypeScript is pinned to 6.x: TypeScript 7 has no compiler API, which tsup's `.d.ts` generation needs. Revisit when tsup supports it.
 - Biome (not ESLint/Prettier) handles lint and formatting; it ignores Markdown.
-- Packages are `"private": true`. Do not remove that without the user's go-ahead.
+- Library packages are published to npm (`publishConfig.access: public`); the examples stay `"private": true`.
 - `@eventlane/nestjs` uses `@swc/core` (tsup and `unplugin-swc` in vitest) so decorator metadata is emitted; library code still uses explicit `@Inject()` tokens. Its tests alias `@eventlane/core` to the sibling sources, so they need no build.
 - Biome has `unsafeParameterDecoratorsEnabled` on because Nest code uses parameter decorators.
 
@@ -96,4 +95,4 @@ Code, comments, commit messages, docs and issues are in **English**.
 - Confirm with the user before publishing to npm, creating a public repo, or reserving an npm scope.
 - Do not commit or push unless asked.
 - When unsure about a product decision, ask the user; once answered, implement it and describe it in `docs/`.
-- Do not add markdown files with plans, proposals or notes. Open items go in `OPEN.md`; everything else belongs in the user documentation (`docs/`), a package README, or nowhere.
+- Do not add markdown files with plans, proposals or notes. Everything else belongs in the user documentation (`docs/`), a package README, or nowhere.

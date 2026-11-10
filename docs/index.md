@@ -49,5 +49,3 @@ features:
 - **NestJS**: the integration package, built on the core. Start with its getting started page.
 - **Dashboard**: a web UI as separate packages that mounts into NestJS, Express or Fastify.
 - **Project**: how EventLane compares to alternatives.
-
-> EventLane is not published to npm yet; the install commands in these docs show how it will be installed.

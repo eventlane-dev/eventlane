@@ -1,7 +1,6 @@
 {
   "name": "@eventlane/nestjs",
   "version": "0.1.0",
-  "private": true,
   "description": "EventLane NestJS integration: module, decorators and dependency injection",
   "license": "MIT",
   "repository": {
@@ -63,5 +62,8 @@
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",
     "unplugin-swc": "^2.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

@@ -2,7 +2,13 @@
 
 Mounts the EventLane dashboard into an Express app: `createBoard({ buses }).router`.
 
-> Part of [EventLane](../../README.md).
+> Part of [EventLane](https://github.com/eventlane-dev/eventlane).
+
+## Install
+
+```bash
+npm install @eventlane/board-express @eventlane/core express ioredis
+```
 
 ## Build and test
 
@@ -13,8 +19,8 @@ pnpm --filter @eventlane/board-express test      # needs Redis and the built UI 
 pnpm --filter @eventlane/board-express typecheck
 ```
 
-A runnable app: [examples/board](../../examples/board).
+A runnable app: [examples/board](https://github.com/eventlane-dev/eventlane/tree/main/examples/board).
 
 ## Documentation
 
-- [Dashboard: getting started](../../docs/dashboard/getting-started.md#express)
+- [Dashboard: getting started](https://eventlane-dev.github.io/eventlane/dashboard/getting-started#express)

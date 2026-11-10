@@ -1,7 +1,6 @@
 {
   "name": "@eventlane/board-api",
   "version": "0.1.0",
-  "private": true,
   "description": "EventLane board: framework-agnostic JSON API for inspecting topics, events, consumers and dead letters",
   "license": "MIT",
   "repository": {
@@ -48,5 +47,8 @@
   "devDependencies": {
     "@eventlane/core": "workspace:*",
     "ioredis": "^6.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

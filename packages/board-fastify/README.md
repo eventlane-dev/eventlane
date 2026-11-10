@@ -2,7 +2,13 @@
 
 Mounts the EventLane dashboard into a Fastify app: `app.register(createBoard({ buses }).plugin, { prefix })`.
 
-> Part of [EventLane](../../README.md).
+> Part of [EventLane](https://github.com/eventlane-dev/eventlane).
+
+## Install
+
+```bash
+npm install @eventlane/board-fastify @eventlane/core fastify ioredis
+```
 
 ## Build and test
 
@@ -16,4 +22,4 @@ pnpm --filter @eventlane/board-fastify typecheck
 
 ## Documentation
 
-- [Dashboard: getting started](../../docs/dashboard/getting-started.md#fastify)
+- [Dashboard: getting started](https://eventlane-dev.github.io/eventlane/dashboard/getting-started#fastify)

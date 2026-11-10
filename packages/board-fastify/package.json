@@ -1,7 +1,6 @@
 {
   "name": "@eventlane/board-fastify",
   "version": "0.1.0",
-  "private": true,
   "description": "EventLane board: mounts the dashboard (API and UI) into a Fastify app",
   "license": "MIT",
   "repository": {
@@ -54,5 +53,8 @@
     "@eventlane/core": "workspace:*",
     "fastify": "^5.12.8",
     "ioredis": "^6.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

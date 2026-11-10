@@ -2,7 +2,13 @@
 
 The framework-independent EventLane library on `ioredis`: topics, consumers, retries and dead letters, deduplication, replay, retention and stats. Use it from any Node.js app.
 
-> Part of [EventLane](../../README.md).
+> Part of [EventLane](https://github.com/eventlane-dev/eventlane).
+
+## Install
+
+```bash
+npm install @eventlane/core ioredis
+```
 
 ## Build and test
 
@@ -17,5 +23,5 @@ Source in `src/`, tests in `test/` (they run against a real Redis).
 
 ## Documentation
 
-- [Getting started](../../docs/core/getting-started.md), [Concepts](../../docs/core/concepts.md), [Core API](../../docs/core/api.md)
-- [Reliability](../../docs/core/reliability.md), [Operations](../../docs/core/operations.md), [Configuration](../../docs/core/configuration.md)
+- [Getting started](https://eventlane-dev.github.io/eventlane/core/getting-started), [Concepts](https://eventlane-dev.github.io/eventlane/core/concepts), [Core API](https://eventlane-dev.github.io/eventlane/core/api)
+- [Reliability](https://eventlane-dev.github.io/eventlane/core/reliability), [Operations](https://eventlane-dev.github.io/eventlane/core/operations), [Configuration](https://eventlane-dev.github.io/eventlane/core/configuration)

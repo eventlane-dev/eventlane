@@ -9,9 +9,62 @@
 
 A lightweight, persistent event bus for Node.js and NestJS, built on Redis Streams: Kafka-like topics and consumers with an `EventEmitter`-like API, for projects that already run Redis (for example for BullMQ) and do not want to operate Kafka or RabbitMQ. A Bull Board style dashboard is included as separate packages.
 
-> Nothing is published to npm yet; the packages are marked `private`.
+**[Documentation](https://eventlane-dev.github.io/eventlane/)** · [Getting started](https://eventlane-dev.github.io/eventlane/core/getting-started) · [NestJS](https://eventlane-dev.github.io/eventlane/nestjs/getting-started) · [Dashboard](https://eventlane-dev.github.io/eventlane/dashboard/overview)
 
-**How it works, the API and the guides are in the documentation: [docs/](docs/index.md).** This file is about working in the repository.
+## Example
+
+```ts
+import { EventLaneBus } from '@eventlane/core';
+
+const bus = new EventLaneBus({ redisUrl: process.env.REDIS_URL!, consumerName: 'notifications' });
+
+// listen: topic, event name, handler
+bus.on('users', 'user.created', async (payload, meta) => {
+  console.log('welcome', payload.email);
+});
+await bus.start();
+
+// emit from anywhere: the same process or another service
+await bus.emit('users', 'user.created', { id: 1, email: 'ada@example.com' });
+```
+
+In NestJS the same thing is a decorator:
+
+```ts
+@Injectable()
+export class NotificationsHandler {
+  @OnLaneEvent('user.created')
+  async welcome(payload: { id: number; email: string }) {
+    // retried automatically when it throws
+  }
+}
+
+// and where the event happens:
+constructor(@InjectLaneEmitter('users') private readonly users: TopicEmitter) {}
+// ...
+await this.users.emit('user.created', { id: 1, email: 'ada@example.com' });
+```
+
+## Install
+
+```bash
+npm install @eventlane/core ioredis            # the library, for any Node.js app
+npm install @eventlane/nestjs @eventlane/core ioredis   # NestJS module and decorators
+```
+
+You need Redis 6.2 or newer with persistence on. The dashboard packages are installed separately; see the [dashboard docs](https://eventlane-dev.github.io/eventlane/dashboard/getting-started).
+
+## Why EventLane
+
+- **Persistent.** Events live in Redis and survive restarts; you can inspect and replay them.
+- **Independent consumers.** Every consumer gets every event, and several instances of one consumer share the work.
+- **Reliable.** At-least-once delivery, retries with backoff, a dead-letter stream, recovery of events from crashed instances, optional deduplication.
+- **Small API.** `emit` and `on`, with topics, event names and consumer names you already know from Kafka.
+- **A dashboard** to browse events, find out why something is stuck, retry dead letters and replay history.
+
+It is not Kafka: there are no partitions, no ordering across several instances and no Redis Cluster support, and everything is stored in Redis memory. See [the comparison](https://eventlane-dev.github.io/eventlane/comparison) for when to choose something else.
+
+![The EventLane dashboard listing the events of a topic](docs/public/dashboard.jpg)
 
 ## Packages
 
@@ -109,4 +162,8 @@ All of them need the Redis from `pnpm redis:up` and a prior `pnpm build`.
 
 ## Contributing
 
-Repository conventions (also for AI coding agents) are in [AGENTS.md](AGENTS.md); what is not built or not verified yet is listed in [OPEN.md](OPEN.md).
+Repository conventions (also for AI coding agents) are in [AGENTS.md](AGENTS.md).
+
+## License
+
+[MIT](LICENSE)
