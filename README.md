@@ -9,7 +9,7 @@
 
 A lightweight, persistent event bus for Node.js and NestJS, built on Redis Streams: Kafka-like topics and consumers with an `EventEmitter`-like API, for projects that already run Redis (for example for BullMQ) and do not want to operate Kafka or RabbitMQ. A Bull Board style dashboard is included as separate packages.
 
-**[Documentation](https://eventlane-dev.github.io/eventlane/)** · [Getting started](https://eventlane-dev.github.io/eventlane/core/getting-started) · [NestJS](https://eventlane-dev.github.io/eventlane/nestjs/getting-started) · [Dashboard](https://eventlane-dev.github.io/eventlane/dashboard/overview)
+**[Documentation](https://eventlane-dev.github.io/eventlane/)** · [Getting started](https://eventlane-dev.github.io/eventlane/core/getting-started) · [NestJS](https://eventlane-dev.github.io/eventlane/nestjs/getting-started) · [Dashboard](https://eventlane-dev.github.io/eventlane/dashboard/overview) · [For AI coding agents](https://eventlane-dev.github.io/eventlane/for-agents)
 
 ## Example
 

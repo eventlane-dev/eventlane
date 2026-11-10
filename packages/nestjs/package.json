@@ -2,6 +2,21 @@
   "name": "@eventlane/nestjs",
   "version": "0.1.0",
   "description": "EventLane NestJS integration: module, decorators and dependency injection",
+  "keywords": [
+    "consumer-groups",
+    "dead-letter-queue",
+    "decorators",
+    "event-bus",
+    "event-driven",
+    "eventlane",
+    "events",
+    "nest",
+    "nestjs",
+    "nodejs",
+    "redis",
+    "redis-streams",
+    "typescript"
+  ],
   "license": "MIT",
   "repository": {
     "type": "git",

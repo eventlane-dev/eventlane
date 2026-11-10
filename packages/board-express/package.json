@@ -2,6 +2,19 @@
   "name": "@eventlane/board-express",
   "version": "0.1.0",
   "description": "EventLane board: mounts the dashboard (API and UI) into an Express app",
+  "keywords": [
+    "admin",
+    "dashboard",
+    "event-bus",
+    "eventlane",
+    "events",
+    "express",
+    "monitoring",
+    "nodejs",
+    "redis",
+    "redis-streams",
+    "typescript"
+  ],
   "license": "MIT",
   "repository": {
     "type": "git",

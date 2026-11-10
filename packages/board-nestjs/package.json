@@ -2,6 +2,19 @@
   "name": "@eventlane/board-nestjs",
   "version": "0.1.0",
   "description": "EventLane board: mounts the dashboard into a NestJS app (Express or Fastify platform)",
+  "keywords": [
+    "admin",
+    "dashboard",
+    "event-bus",
+    "eventlane",
+    "events",
+    "monitoring",
+    "nestjs",
+    "nodejs",
+    "redis",
+    "redis-streams",
+    "typescript"
+  ],
   "license": "MIT",
   "repository": {
     "type": "git",

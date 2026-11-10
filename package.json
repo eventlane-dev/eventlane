@@ -15,7 +15,7 @@
     "redis:up": "docker compose up -d eventlane-redis",
     "redis:down": "docker compose down",
     "docs:dev": "vitepress dev docs",
-    "docs:build": "vitepress build docs",
+    "docs:build": "node scripts/build-llms.mjs && vitepress build docs",
     "docs:preview": "vitepress preview docs"
   },
   "devDependencies": {

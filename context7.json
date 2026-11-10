@@ -1,0 +1,12 @@
+{
+  "$schema": "https://context7.com/schema/context7.json",
+  "projectTitle": "EventLane",
+  "description": "A persistent event bus on Redis Streams for Node.js and NestJS: topics, independent consumers, retries, dead letters, replay and a dashboard.",
+  "folders": ["docs"],
+  "excludeFolders": ["docs/.vitepress", "docs/public"],
+  "rules": [
+    "Delivery is at-least-once, so handlers must be idempotent",
+    "There are no wildcard event names, schema validation or Redis Cluster support",
+    "Use topicName, eventName and consumerName consistently; instanceName is generated"
+  ]
+}

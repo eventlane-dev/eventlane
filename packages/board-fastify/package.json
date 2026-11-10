@@ -2,6 +2,19 @@
   "name": "@eventlane/board-fastify",
   "version": "0.1.0",
   "description": "EventLane board: mounts the dashboard (API and UI) into a Fastify app",
+  "keywords": [
+    "admin",
+    "dashboard",
+    "event-bus",
+    "eventlane",
+    "events",
+    "fastify",
+    "monitoring",
+    "nodejs",
+    "redis",
+    "redis-streams",
+    "typescript"
+  ],
   "license": "MIT",
   "repository": {
     "type": "git",

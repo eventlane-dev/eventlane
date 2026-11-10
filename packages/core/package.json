@@ -2,6 +2,23 @@
   "name": "@eventlane/core",
   "version": "0.1.0",
   "description": "EventLane core: framework-agnostic persistent event bus on Redis Streams",
+  "keywords": [
+    "at-least-once",
+    "consumer-groups",
+    "dead-letter-queue",
+    "event-bus",
+    "event-driven",
+    "eventlane",
+    "events",
+    "kafka-alternative",
+    "message-queue",
+    "nodejs",
+    "pubsub",
+    "redis",
+    "redis-streams",
+    "retry",
+    "typescript"
+  ],
   "license": "MIT",
   "repository": {
     "type": "git",

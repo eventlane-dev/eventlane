@@ -2,6 +2,19 @@
   "name": "@eventlane/board-api",
   "version": "0.1.0",
   "description": "EventLane board: framework-agnostic JSON API for inspecting topics, events, consumers and dead letters",
+  "keywords": [
+    "admin",
+    "dashboard",
+    "dead-letter-queue",
+    "event-bus",
+    "eventlane",
+    "events",
+    "monitoring",
+    "nodejs",
+    "redis",
+    "redis-streams",
+    "typescript"
+  ],
   "license": "MIT",
   "repository": {
     "type": "git",

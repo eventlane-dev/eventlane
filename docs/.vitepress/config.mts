@@ -2,6 +2,7 @@ import { defineConfig } from 'vitepress';
 
 // On GitHub Pages the site lives under /<repository>/; the workflow sets DOCS_BASE accordingly.
 const base = process.env.DOCS_BASE ?? '/';
+const site = 'https://eventlane-dev.github.io/eventlane';
 
 export default defineConfig({
   title: 'EventLane',
@@ -9,6 +10,24 @@ export default defineConfig({
   base,
   head: [['link', { rel: 'icon', type: 'image/svg+xml', href: `${base}favicon.svg` }]],
   cleanUrls: true,
+  sitemap: { hostname: `${site}/` },
+  // canonical link and the tags that give a link preview (Slack, Discord, social networks)
+  transformHead({ pageData }) {
+    const path = pageData.relativePath.replace(/(^|\/)index\.md$/, '$1').replace(/\.md$/, '');
+    const url = `${site}/${path}`;
+    const title = pageData.title ? `${pageData.title} | EventLane` : 'EventLane';
+    const description =
+      pageData.description || 'A persistent event bus on Redis Streams for Node.js and NestJS';
+    return [
+      ['link', { rel: 'canonical', href: url }],
+      ['meta', { property: 'og:type', content: 'website' }],
+      ['meta', { property: 'og:site_name', content: 'EventLane' }],
+      ['meta', { property: 'og:title', content: title }],
+      ['meta', { property: 'og:description', content: description }],
+      ['meta', { property: 'og:url', content: url }],
+      ['meta', { name: 'twitter:card', content: 'summary' }],
+    ];
+  },
   themeConfig: {
     logo: { light: '/logo.svg', dark: '/logo-dark.svg', alt: 'EventLane' },
     nav: [
@@ -57,7 +76,10 @@ export default defineConfig({
       '/': [
         {
           text: 'Project',
-          items: [{ text: 'Comparison', link: '/comparison' }],
+          items: [
+            { text: 'Comparison', link: '/comparison' },
+            { text: 'For AI coding agents', link: '/for-agents' },
+          ],
         },
       ],
     },
