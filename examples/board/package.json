@@ -1,0 +1,22 @@
+{
+  "name": "@eventlane/example-board",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "An Express app with demo traffic and the EventLane board mounted on /admin/events",
+  "scripts": {
+    "start": "tsx src/main.ts",
+    "dev": "tsx watch src/main.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@eventlane/board-express": "workspace:*",
+    "@eventlane/core": "workspace:*",
+    "express": "^5.0.0",
+    "ioredis": "^6.0.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "tsx": "^4.23.15"
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "name": "@eventlane/board-api",
+  "version": "0.1.0",
+  "private": true,
+  "description": "EventLane board: framework-agnostic JSON API for inspecting topics, events, consumers and dead letters",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eventlane-dev/eventlane.git",
+    "directory": "packages/board-api"
+  },
+  "homepage": "https://eventlane-dev.github.io/eventlane/",
+  "bugs": {
+    "url": "https://github.com/eventlane-dev/eventlane/issues"
+  },
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "peerDependencies": {
+    "@eventlane/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@eventlane/core": "workspace:*",
+    "ioredis": "^6.0.0"
+  }
+}

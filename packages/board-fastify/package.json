@@ -1,0 +1,58 @@
+{
+  "name": "@eventlane/board-fastify",
+  "version": "0.1.0",
+  "private": true,
+  "description": "EventLane board: mounts the dashboard (API and UI) into a Fastify app",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eventlane-dev/eventlane.git",
+    "directory": "packages/board-fastify"
+  },
+  "homepage": "https://eventlane-dev.github.io/eventlane/",
+  "bugs": {
+    "url": "https://github.com/eventlane-dev/eventlane/issues"
+  },
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@eventlane/board-api": "workspace:*",
+    "@eventlane/board-ui": "workspace:*"
+  },
+  "peerDependencies": {
+    "@eventlane/core": "workspace:*",
+    "fastify": "^4.0.0 || ^5.0.0"
+  },
+  "devDependencies": {
+    "@eventlane/core": "workspace:*",
+    "fastify": "^5.12.8",
+    "ioredis": "^6.0.0"
+  }
+}

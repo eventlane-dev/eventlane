@@ -1,0 +1,23 @@
+# A Redis for developing EventLane. Everything is named after the project (and the port is not the
+# default 6379) so it does not collide with other projects or a Redis you already run.
+name: eventlane
+
+services:
+  eventlane-redis:
+    image: redis:7-alpine
+    container_name: eventlane-redis
+    # Persistence on and no eviction, as recommended in docs/core/operations.md
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory-policy", "noeviction"]
+    ports:
+      # only on this machine; change the host port with EVENTLANE_REDIS_PORT
+      - "127.0.0.1:${EVENTLANE_REDIS_PORT:-6390}:6379"
+    volumes:
+      - eventlane-redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  eventlane-redis-data:

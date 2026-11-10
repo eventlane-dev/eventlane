@@ -1,0 +1,21 @@
+/* Use the whole width of the window: the default theme centers the layout in 1440 px and the
+   article in 688 px, which leaves wide empty bands on large screens. */
+:root {
+  --vp-layout-max-width: 100vw;
+}
+
+.VPDoc .container,
+.VPDoc .content,
+.VPDoc .content-container,
+.VPDoc.has-aside .content-container,
+.VPDoc:not(.has-sidebar) .container,
+.VPDoc:not(.has-sidebar) .content {
+  /* biome-ignore lint/complexity/noImportantStyles: overrides the default theme's own limits */
+  max-width: 100% !important;
+}
+
+/* tables and code are what the pages are made of: let them breathe */
+.vp-doc table {
+  display: table;
+  width: 100%;
+}
