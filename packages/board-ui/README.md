@@ -1,8 +1,6 @@
 # @eventlane/board-ui
 
-The web UI of the EventLane dashboard: a small Preact single-page app built with Vite to static files. It talks to the board API with relative URLs, so it works under any mount path. The package also exports `uiDirectory`, the folder with the built files, which the adapters serve.
-
-> Part of [EventLane](https://github.com/eventlane-dev/eventlane).
+The web UI of the [EventLane](https://www.npmjs.com/package/@eventlane/core) dashboard, as static files. You normally do not install it: `@eventlane/board-express` and `@eventlane/board-fastify` already include it.
 
 ## Install
 
@@ -10,26 +8,12 @@ The web UI of the EventLane dashboard: a small Preact single-page app built with
 npm install @eventlane/board-ui
 ```
 
-The adapters (`@eventlane/board-express`, `@eventlane/board-fastify`) already depend on it; install it directly only to write your own adapter.
-
-## Build and test
-
-```bash
-pnpm --filter @eventlane/board-ui build      # tsup (the tiny entry) then vite build into dist/app
-pnpm --filter @eventlane/board-ui test       # component tests in happy-dom, no Redis needed
-pnpm --filter @eventlane/board-ui typecheck
-```
-
-## Develop the UI
-
-Run a server that mounts the board (for example `pnpm --filter @eventlane/example-board start`, which listens on port 3000 by default), then start the Vite dev server pointing at it:
-
-```bash
-BOARD_URL=http://localhost:3000/admin/events pnpm --filter @eventlane/board-ui dev
-```
-
-The dev server proxies `/api` to that board, so you see real data while editing the UI. After changes, rebuild the UI and restart the example, because the Express adapter reads `index.html` once.
+Only needed to serve the UI from your own adapter. The package exports `uiDirectory`, the folder with the built app; serve its files, and its `index.html` with a `<base href>` set to the mount path. It talks to the API with relative URLs, so it works under any path.
 
 ## Documentation
 
-- [Dashboard: overview](https://eventlane-dev.github.io/eventlane/dashboard/overview), [getting started](https://eventlane-dev.github.io/eventlane/dashboard/getting-started)
+- [Dashboard overview](https://eventlane-dev.github.io/eventlane/dashboard/overview), [Other frameworks](https://eventlane-dev.github.io/eventlane/dashboard/getting-started#other-frameworks)
+
+## License
+
+MIT. Source and issues: [github.com/eventlane-dev/eventlane](https://github.com/eventlane-dev/eventlane).

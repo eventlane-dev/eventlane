@@ -1,8 +1,6 @@
 # @eventlane/board-api
 
-The framework-neutral JSON API of the EventLane dashboard: `createBoardApi(options).handle(request)` answers `{ status, body }` for topics, events, consumers and dead letters, and for the write actions. It has no HTTP framework dependency; the adapters translate requests.
-
-> Part of [EventLane](https://github.com/eventlane-dev/eventlane).
+The framework-neutral JSON API behind the [EventLane](https://www.npmjs.com/package/@eventlane/core) dashboard. Use it to build a dashboard adapter for a framework that has none; for Express, Fastify or NestJS use the ready-made adapters instead.
 
 ## Install
 
@@ -10,17 +8,23 @@ The framework-neutral JSON API of the EventLane dashboard: `createBoardApi(optio
 npm install @eventlane/board-api @eventlane/core
 ```
 
-## Build and test
+## Use it
 
-```bash
-pnpm --filter @eventlane/board-api build
-pnpm --filter @eventlane/board-api dev        # rebuild on every change (watch mode)
-pnpm --filter @eventlane/board-api test      # needs Redis; it runs against the sources of `@eventlane/core`
-pnpm --filter @eventlane/board-api typecheck
+```ts
+import { createBoardApi } from '@eventlane/board-api';
+
+const api = createBoardApi({ buses: bus, readOnly: true });
+
+// translate your framework's request, then write the answer; handle never throws
+const { status, body } = await api.handle({ method: 'GET', path: '/topics', query: {}, raw: request });
 ```
 
-To build an adapter for another framework, see "Other frameworks" in the dashboard docs.
+It covers topics, events, consumers and dead letters, with rate limiting, payload redaction and protection of write actions built in.
 
 ## Documentation
 
-- [Dashboard: getting started](https://eventlane-dev.github.io/eventlane/dashboard/getting-started) (options), [HTTP API](https://eventlane-dev.github.io/eventlane/dashboard/api)
+- [HTTP API](https://eventlane-dev.github.io/eventlane/dashboard/api), [Other frameworks](https://eventlane-dev.github.io/eventlane/dashboard/getting-started#other-frameworks)
+
+## License
+
+MIT. Source and issues: [github.com/eventlane-dev/eventlane](https://github.com/eventlane-dev/eventlane).

@@ -1,6 +1,6 @@
 {
   "name": "@eventlane/board-api",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "EventLane board: framework-agnostic JSON API for inspecting topics, events, consumers and dead letters",
   "keywords": [
     "admin",

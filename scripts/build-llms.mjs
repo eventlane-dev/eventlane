@@ -11,22 +11,24 @@ const raw = 'https://raw.githubusercontent.com/eventlane-dev/eventlane/main/docs
 
 // the order and the grouping of the sidebar
 const sections = [
-  ['Start here', ['for-agents', 'core/getting-started', 'core/concepts']],
+  ['Start here', ['for-agents', 'core/quick-start', 'core/getting-started', 'core/concepts']],
   [
     'Core library',
     [
       'core/api',
       'core/reliability',
       'core/operations',
+      'core/recipes',
       'core/patterns',
       'core/production-checklist',
+      'core/troubleshooting',
       'core/configuration',
       'core/redis-data-model',
     ],
   ],
   ['NestJS', ['nestjs/getting-started', 'nestjs/guide', 'nestjs/configuration']],
   ['Dashboard', ['dashboard/overview', 'dashboard/getting-started', 'dashboard/api']],
-  ['Project', ['comparison']],
+  ['Project', ['comparison', 'changelog']],
 ];
 
 const summaries = {

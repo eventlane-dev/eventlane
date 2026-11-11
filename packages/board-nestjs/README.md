@@ -1,26 +1,37 @@
 # @eventlane/board-nestjs
 
-`BoardModule` for NestJS: serves the EventLane dashboard on a route of your app (Express or Fastify platform) and finds the bus of `EventLaneModule` by itself.
+`BoardModule`: the [EventLane](https://www.npmjs.com/package/@eventlane/core) dashboard inside a NestJS app, on a route you choose. It finds the bus of `EventLaneModule` by itself and works on the Express and Fastify platforms.
 
-> Part of [EventLane](https://github.com/eventlane-dev/eventlane).
+> **The dashboard has no login of its own.** Mount it behind your authentication (middleware or the `authorize` option) or on an internal network. It is read-only unless you pass `readOnly: false`.
 
 ## Install
 
 ```bash
 npm install @eventlane/board-nestjs @eventlane/board-express @eventlane/nestjs @eventlane/core
+# on the Fastify platform install @eventlane/board-fastify instead of @eventlane/board-express
 ```
 
-## Build and test
+## Use it
 
-```bash
-pnpm --filter @eventlane/board-nestjs build
-pnpm --filter @eventlane/board-nestjs dev        # rebuild on every change (watch mode)
-pnpm --filter @eventlane/board-nestjs test      # needs Redis and the built UI (`pnpm --filter @eventlane/board-ui build`)
-pnpm --filter @eventlane/board-nestjs typecheck
+```ts
+@Module({
+  imports: [
+    EventLaneModule.forRoot({ redisUrl: process.env.REDIS_URL }),
+    BoardModule.forRoot({
+      route: '/admin/events',
+      authorize: (req) => req.user?.isAdmin, // Nest guards do not apply here
+    }),
+  ],
+})
+export class AppModule {}
 ```
 
-A runnable app: [examples/nestjs](https://github.com/eventlane-dev/eventlane/tree/main/examples/nestjs).
+Open `/admin/events/` on your app. Writes (retry, purge, replay) are off unless you set `readOnly: false`.
 
 ## Documentation
 
-- [Dashboard: getting started](https://eventlane-dev.github.io/eventlane/dashboard/getting-started#nestjs)
+- [Dashboard: getting started](https://eventlane-dev.github.io/eventlane/dashboard/getting-started#nestjs) and [options](https://eventlane-dev.github.io/eventlane/dashboard/getting-started#options)
+
+## License
+
+MIT. Source and issues: [github.com/eventlane-dev/eventlane](https://github.com/eventlane-dev/eventlane).

@@ -41,13 +41,16 @@ export default defineConfig({
         {
           text: 'Core',
           items: [
+            { text: 'Quick start', link: '/core/quick-start' },
             { text: 'Getting started', link: '/core/getting-started' },
             { text: 'Concepts and naming', link: '/core/concepts' },
             { text: 'Core API', link: '/core/api' },
             { text: 'Reliability', link: '/core/reliability' },
             { text: 'Operations', link: '/core/operations' },
+            { text: 'Recipes', link: '/core/recipes' },
             { text: 'Patterns', link: '/core/patterns' },
             { text: 'Production checklist', link: '/core/production-checklist' },
+            { text: 'Troubleshooting', link: '/core/troubleshooting' },
             { text: 'Configuration', link: '/core/configuration' },
             { text: 'Redis data model', link: '/core/redis-data-model' },
           ],
@@ -78,6 +81,7 @@ export default defineConfig({
           text: 'Project',
           items: [
             { text: 'Comparison', link: '/comparison' },
+            { text: 'Changelog', link: '/changelog' },
             { text: 'For AI coding agents', link: '/for-agents' },
           ],
         },
