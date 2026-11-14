@@ -51,13 +51,20 @@ Anything with access to Redis can `emit`. Anything can listen as long as it has 
 ## Delivery guarantees
 
 - **At-least-once.** An event is acknowledged only after the handler succeeds. If a handler throws or the process dies mid-handling, the event is delivered again. Your handlers should be idempotent, or use [deduplication](reliability.md#deduplication).
-- **Persistent.** Events stay in the topic after they are consumed, until retention trims them. You can inspect and [replay](operations.md#replay) them.
-- **Ordering.** Events of a topic are stored in the order they were emitted, but they are **handled in that order only in one situation**: a single instance of the consumer, `concurrency: 1` (the default) and no failing handlers. With several instances of a consumer the events are shared out and handled in parallel, so the order across instances is lost; a retried event runs after its backoff, so later events can overtake it; and with `concurrency` above 1 handlers overlap. There are no partitions or ordering keys. See [Ordering](reliability.md#ordering) for what to do when order matters.
+- **Persistent.** Events stay in the topic after they are consumed, until retention trims them. You can inspect and [replay](inspecting.md#replay) them.
+- **No ordering guarantee.** Events are stored in the order they were emitted, but handled in that order only with a single instance of the consumer, `concurrency: 1` (the default) and no failing handlers. There are no partitions or ordering keys. [Ordering](reliability.md#ordering) explains what reorders and how to write handlers that do not care.
 - **Not exactly-once.** Nothing in Redis can promise that. Use deduplication.
 
 ## Filtering by event name
 
 A consumer reads every event of a topic. If a handler listens to a specific `eventName`, other events of the topic are acknowledged without running it. Topics with very different event volumes are better split into separate topics.
+
+## Limits
+
+- Everything lives in Redis memory; [retention](operations.md#retention) bounds it.
+- No partitions or ordering keys, and no Redis Cluster (a single node, or Sentinel).
+- No wildcard event names, schema validation or typed event maps.
+- At-least-once only; handlers must tolerate duplicates.
 
 ## Naming rules
 

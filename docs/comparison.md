@@ -27,7 +27,7 @@ You are building a monolith (or a few services). You already run Redis (for Bull
 ## Use BullMQ instead when
 
 - It is a **job**: one piece of work, one worker, results, priorities, scheduled or delayed jobs, rate limiting. EventLane is for facts that happened ("user.created"), not commands.
-- They are complementary: a EventLane handler can enqueue a BullMQ job.
+- They are complementary: an EventLane handler can enqueue a BullMQ job.
 
 ## Use Kafka (or similar) when
 
@@ -36,6 +36,4 @@ You are building a monolith (or a few services). You already run Redis (for Bull
 
 ## Known limits
 
-- Everything lives in Redis memory (retention is bounded by RAM).
-- At-least-once only; handlers must tolerate duplicates.
-- No partitions and no Redis Cluster.
+The full list is in [Limits](core/concepts.md#limits): everything lives in Redis memory (retention is bounded by RAM), delivery is at-least-once, and there are no partitions and no Redis Cluster.

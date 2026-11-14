@@ -11,23 +11,30 @@ const raw = 'https://raw.githubusercontent.com/eventlane-dev/eventlane/main/docs
 
 // the order and the grouping of the sidebar
 const sections = [
-  ['Start here', ['for-agents', 'core/quick-start', 'core/getting-started', 'core/concepts']],
+  ['Start here', ['for-agents', 'core/getting-started', 'core/concepts']],
   [
     'Core library',
     [
       'core/api',
-      'core/reliability',
-      'core/operations',
+      'core/configuration',
       'core/recipes',
       'core/patterns',
+      'core/reliability',
+      'core/inspecting',
+      'core/operations',
       'core/production-checklist',
       'core/troubleshooting',
-      'core/configuration',
       'core/redis-data-model',
     ],
   ],
   ['NestJS', ['nestjs/getting-started', 'nestjs/guide', 'nestjs/configuration']],
-  ['Dashboard', ['dashboard/overview', 'dashboard/getting-started', 'dashboard/api']],
+  ['Dashboard', [
+      'dashboard/overview',
+      'dashboard/getting-started',
+      'dashboard/using',
+      'dashboard/options',
+      'dashboard/api',
+    ]],
   ['Project', ['comparison', 'changelog']],
 ];
 
@@ -35,8 +42,9 @@ const summaries = {
   'core/api': 'Creating a bus, emitting, listening, subscription options and inspection methods.',
   'core/reliability':
     'At-least-once delivery, retries and backoff, dead letters, crash recovery, deduplication, ordering and what happens when Redis is unavailable.',
-  'core/operations':
-    'Redis setup, retention, peeking at events, replay, stats and lag, retrying and removing things, performance.',
+  'core/inspecting':
+    'Listing topics, reading and paging events, replay, stats and lag, pending and retrying events, where one event stands.',
+  'core/operations': 'Redis setup, retention, removing topics and consumers, performance.',
   'core/configuration': 'Every option of the bus, of topics and of subscriptions.',
   'nestjs/configuration': 'Options of EventLaneModule.forRoot, forFeature and @OnLaneEvent.',
 };

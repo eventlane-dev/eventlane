@@ -105,7 +105,7 @@ interface EventMetadata {
 ```
 
 - Resolve the promise: the event is acknowledged.
-- Throw / reject: the event is [retried](reliability.md#retries-and-backoff) and eventually moved to the [dead-letter stream](reliability.md#dead-letter-stream).
+- Throw / reject: the event is [retried](reliability.md#retries-and-backoff) and eventually moved to the [dead letters](reliability.md#dead-letters).
 
 ### Options per subscription
 
@@ -116,7 +116,7 @@ interface EventMetadata {
 | `dedup` | `false` | Skip events this consumer already processed successfully. See [Deduplication](reliability.md#deduplication). |
 | `startFrom` | `'$'` | Where a **new** consumer starts: `'$'` (only new events) or `'0'` (full history). Ignored if the consumer already exists. |
 
-## Inspecting (see [Operations](operations.md))
+## Inspecting (see [Inspecting](inspecting.md))
 
 ```ts
 await bus.topics();                                              // ['orders', 'users']
@@ -136,7 +136,7 @@ await bus.removeConsumer('users', 'old-service');
 await bus.deleteTopic('users', { confirm: true });
 ```
 
-Each of these is described in [Operations](operations.md) and [Reliability](reliability.md#dead-letter-stream).
+Each of these is described in [Inspecting](inspecting.md), [Operations](operations.md) and [Reliability](reliability.md#dead-letters).
 
 ## Logging
 

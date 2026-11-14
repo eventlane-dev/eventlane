@@ -1,8 +1,6 @@
 # HTTP API
 
-Mounted under `/api` by the adapters. Responses are typed: the types are exported from `@eventlane/board-api`.
-
-JSON over HTTP, used by the web UI and available to scripts. Reads are `GET`. Writes (`POST` and `DELETE`, see [Write routes](#write-routes)) are refused with `403 { "error": "the board is read-only" }` unless the board was created with `readOnly: false`.
+JSON over HTTP, used by the web UI and available to scripts. The adapters mount it under `/api` of the board (`/admin/events/api/...`), and the response types are exported from `@eventlane/board-api`. Reads are `GET`. Writes (`POST` and `DELETE`, see [Write routes](#write-routes)) are refused with `403 { "error": "the board is read-only" }` unless the board was created with `readOnly: false`.
 
 Common to all routes:
 
@@ -43,7 +41,7 @@ Overview of every topic: `{ bus, topics: TopicOverview[] }` where each topic is 
 
 ### `GET /topics/:topic/events/:id`
 
-One event and where it stands for every consumer: `{ event, consumers }`. `event` is `{ id, topicName, eventName, timestamp, headers, payload, size, payloadHidden, payloadTruncated }`, or `null` if the event is no longer in the topic. `consumers` is a list of `{ consumerName, state, ... }` with `state` one of `not-read`, `pending`, `retrying`, `dead-letter`, `done` (see [Where one event stands](../core/operations.md#where-one-event-stands)).
+One event and where it stands for every consumer: `{ event, consumers }`. `event` is `{ id, topicName, eventName, timestamp, headers, payload, size, payloadHidden, payloadTruncated }`, or `null` if the event is no longer in the topic. `consumers` is a list of `{ consumerName, state, ... }` with `state` one of `not-read`, `pending`, `retrying`, `dead-letter`, `done` (see [Where one event stands](../core/inspecting.md#where-one-event-stands)).
 
 ### `GET /topics/:topic/consumers/:consumer/pending`
 
@@ -98,8 +96,7 @@ Action `topic.delete`. Deletes the topic with its dead letters, retries and idem
 ## Example
 
 ```bash
-curl -s http://localhost:3000/admin/events/api/topics/orders/events?limit=2 \
-  -H 'Cookie: ...'
+curl -s 'http://localhost:3000/admin/events/api/topics/orders/events?limit=2'
 ```
 
 ```json

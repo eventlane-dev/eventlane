@@ -30,7 +30,7 @@ Open `http://localhost:3000/admin/events/`.
 
 ## Documentation
 
-- [Dashboard: getting started](https://eventlane-dev.github.io/eventlane/dashboard/getting-started#fastify) and [options](https://eventlane-dev.github.io/eventlane/dashboard/getting-started#options)
+- [Dashboard: getting started](https://eventlane-dev.github.io/eventlane/dashboard/getting-started#fastify) and [options](https://eventlane-dev.github.io/eventlane/dashboard/options)
 
 ## License
 

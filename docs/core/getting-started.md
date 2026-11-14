@@ -1,49 +1,76 @@
-# Getting started with the core
+# Getting started
 
-> Uses `@eventlane/core`, which works in any Node.js app (Express, Fastify, workers, scripts). On NestJS, start with the [NestJS getting started](../nestjs/getting-started.md) instead.
+From nothing to a working event bus in five minutes, in plain Node.js (Express, Fastify, workers, scripts). On NestJS use the [NestJS getting started](../nestjs/getting-started.md) instead.
 
 ## Requirements
 
-- Node.js 20+ (runtime). Developing this repository needs Node 22.18+ because of the build and test tooling.
-- Redis **6.2 or newer** (needed for `XAUTOCLAIM`). Redis 7+ gives more accurate consumer lag in [stats](operations.md#stats-and-lag).
+- Node.js 20 or newer.
+- Redis **6.2 or newer** (needed for `XAUTOCLAIM`), with persistence on. Redis 7+ gives more accurate consumer lag in [stats](inspecting.md#stats-and-lag).
 - `ioredis` installed in your project (a peer dependency, the same client BullMQ uses).
 
-Start a local Redis:
+## 1. Start Redis
 
 ```bash
 docker run --rm --name my-redis -p 6379:6379 redis:7 redis-server --appendonly yes
 ```
 
-`--appendonly yes` matters: without persistence, events are lost when Redis restarts. See [Operations](operations.md#redis-setup).
+`--appendonly yes` matters: without persistence, events are lost when Redis restarts. See [Redis setup](operations.md#redis-setup).
 
-New to the vocabulary? [Concepts](concepts.md) explains `topicName`, `eventName`, `consumerName` and `instanceName` in two minutes.
-
-## Plain Node.js (Express, scripts, workers)
+## 2. Create a project
 
 ```bash
+mkdir lane-quickstart && cd lane-quickstart
+npm init -y
+npm pkg set type=module
 npm install @eventlane/core ioredis
 ```
 
-```ts
+## 3. Write `app.js`
+
+```js
 import { EventLaneBus } from '@eventlane/core';
 
 const bus = new EventLaneBus({
-  redisUrl: process.env.REDIS_URL!,   // or redis: { host, port, password, db } / an ioredis client
-  consumerName: 'notifications',      // this process is the "notifications" consumer
+  redisUrl: 'redis://localhost:6379',     // or redis: { host, port, password, db } / an ioredis client
+  consumerName: 'notifications',          // this process is the "notifications" consumer
+  retry: { attempts: 3, backoff: { type: 'fixed', delay: 1000 } },
 });
 
-// 1. listen: topicName, eventName, handler
+let attempts = 0;
 bus.on('users', 'user.created', async (payload, meta) => {
-  console.log('new user', payload.email, 'from topic', meta.topicName);
+  attempts++;
+  if (attempts === 1) throw new Error('mail server is down'); // fails once, then succeeds
+  console.log(`welcome mail to ${payload.email} (attempt ${meta.attempt})`);
 });
 
 await bus.start();
+await bus.emit('users', 'user.created', { id: 1, email: 'ada@example.com' });
 
-// 2. emit from anywhere (same process or another one)
-await bus.emit('users', 'user.created', { id: 1, email: 'a@b.com' });
-
-// 3. shut down gracefully
-process.on('SIGTERM', () => bus.close());
+setTimeout(async () => {
+  console.log(await bus.stats('users'));
+  await bus.close();                      // in a real app: process.on('SIGTERM', () => bus.close())
+}, 3000);
 ```
 
-Next: [Concepts](concepts.md) for how the pieces behave together, then the [Core API](api.md). Before going live, read the [Production checklist](production-checklist.md); [Patterns](patterns.md) covers outbox, metrics and testing.
+## 4. Run it
+
+```bash
+node app.js
+```
+
+You should see the welcome mail on the **second** attempt, after one second, and then the stats of the topic: one event, the `notifications` consumer with nothing pending and no lag.
+
+## What just happened
+
+- `emit` stored the event in the `users` topic in Redis. It stays there after it is handled.
+- The `notifications` consumer received it. The handler threw, so EventLane waited one second and delivered it again.
+- A second consumer, in this or another process, would have received the same event independently: give it another `consumerName`.
+
+A bus that only emits does not need `start()`; it connects lazily.
+
+## Next
+
+- [Concepts](concepts.md) explains the four names you just used (`topicName`, `eventName`, `consumerName`, `instanceName`).
+- [Core API](api.md) lists every method, [Recipes](recipes.md) shows common tasks and [Troubleshooting](troubleshooting.md) answers the usual questions.
+- Before going live read the [Production checklist](production-checklist.md); [Patterns](patterns.md) covers outbox, metrics and testing.
+- Add the [dashboard](../dashboard/getting-started.md) to see events in a browser.

@@ -39,21 +39,34 @@ export default defineConfig({
     sidebar: {
       '/core/': [
         {
-          text: 'Core',
+          text: 'Start',
           items: [
-            { text: 'Quick start', link: '/core/quick-start' },
             { text: 'Getting started', link: '/core/getting-started' },
             { text: 'Concepts and naming', link: '/core/concepts' },
+          ],
+        },
+        {
+          text: 'Using the core',
+          items: [
             { text: 'Core API', link: '/core/api' },
-            { text: 'Reliability', link: '/core/reliability' },
-            { text: 'Operations', link: '/core/operations' },
+            { text: 'Configuration', link: '/core/configuration' },
             { text: 'Recipes', link: '/core/recipes' },
             { text: 'Patterns', link: '/core/patterns' },
+          ],
+        },
+        {
+          text: 'Running it',
+          items: [
+            { text: 'Reliability', link: '/core/reliability' },
+            { text: 'Inspecting', link: '/core/inspecting' },
+            { text: 'Operations', link: '/core/operations' },
             { text: 'Production checklist', link: '/core/production-checklist' },
             { text: 'Troubleshooting', link: '/core/troubleshooting' },
-            { text: 'Configuration', link: '/core/configuration' },
-            { text: 'Redis data model', link: '/core/redis-data-model' },
           ],
+        },
+        {
+          text: 'Reference',
+          items: [{ text: 'Redis data model', link: '/core/redis-data-model' }],
         },
       ],
       '/nestjs/': [
@@ -72,6 +85,8 @@ export default defineConfig({
           items: [
             { text: 'Overview', link: '/dashboard/overview' },
             { text: 'Getting started', link: '/dashboard/getting-started' },
+            { text: 'Using the board', link: '/dashboard/using' },
+            { text: 'Options and security', link: '/dashboard/options' },
             { text: 'HTTP API', link: '/dashboard/api' },
           ],
         },

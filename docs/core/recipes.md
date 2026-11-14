@@ -2,6 +2,31 @@
 
 Short answers to "how do I...". Each recipe uses only the public API. Names are explained in [Concepts](concepts.md).
 
+## Move from `EventEmitter` or `@nestjs/event-emitter`
+
+The call shapes stay close; what changes is that events now go through Redis.
+
+```ts
+// before: Node.js EventEmitter
+emitter.emit('user.created', user);
+emitter.on('user.created', (user) => sendWelcome(user));
+
+// after: EventLane (the bus has consumerName: 'notifications')
+await bus.emit('users', 'user.created', user);
+bus.on('users', 'user.created', (user) => sendWelcome(user));
+await bus.start();
+```
+
+In NestJS, `@OnEvent('user.created')` becomes `@OnLaneEvent('user.created')` and `EventEmitter2.emit(...)` becomes `topicEmitter.emit(...)` (see the [NestJS guide](../nestjs/guide.md)).
+
+What to check when you switch:
+
+- **Emitting is asynchronous.** `await` it: the promise resolves once Redis stored the event, and rejects if Redis stays down ([When Redis is unavailable](reliability.md#when-redis-is-unavailable)).
+- **The payload is JSON.** Class instances arrive as plain objects, a `Date` as a string, and functions are lost. Emit plain data.
+- **Handlers run later, maybe in another process.** The emitter no longer waits for them and never sees their errors: a failing handler is retried, then lands in the dead letters.
+- **Handlers can run twice** (at-least-once): make them [idempotent](#make-a-handler-safe-to-run-twice).
+- **Every handler needs a topic and a consumer.** Pick the topic by business area (`users`, not `user.created`) and the consumer by responsibility (`notifications`). See [Concepts](concepts.md).
+
 ## Send an email after a user registers
 
 Emit where the event happens, handle it in the consumer that sends mail. The registration code does not know about mail.
@@ -63,7 +88,7 @@ Pass `idempotencyKey` to `emit` when the caller itself may retry. See [Deduplica
 
 ## Find out why something failed and retry it
 
-Events that fail all their attempts go to the dead-letter stream with the error and stack:
+Events that fail all their attempts go to the dead-letter queue with the error and stack:
 
 ```ts
 const failed = await bus.dlq.list('orders', { consumerName: 'billing', count: 20 });
@@ -83,7 +108,7 @@ To run a consumer over old events again, move its position back:
 await bus.replay('orders', { consumerName: 'reporting', from: new Date('2026-11-01') });
 ```
 
-For a clean run that ignores earlier "already done" markers, create a **new** consumer instead (`consumerName: 'reporting-v2'` with `startFrom: '0'`). See [Replay](operations.md#replay).
+For a clean run that ignores earlier "already done" markers, create a **new** consumer instead (`consumerName: 'reporting-v2'` with `startFrom: '0'`). See [Replay](inspecting.md#replay).
 
 ## Add a new consumer that also needs the old events
 

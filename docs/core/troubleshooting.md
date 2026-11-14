@@ -19,7 +19,7 @@ Check in this order:
 
 1. Did you call `await bus.start()` (in NestJS: is the module with the handler imported)?
 2. Is the **topic name** the same in `emit` and in `on` (`users` is not `user`)? Is the **event name** exactly the same, including case?
-3. A consumer that did not exist yet starts at **now**, so events emitted before it first ran are skipped. Use `startFrom: '0'` or [replay](operations.md#replay).
+3. A consumer that did not exist yet starts at **now**, so events emitted before it first ran are skipped. Use `startFrom: '0'` or [replay](inspecting.md#replay).
 4. Do both sides use the same `prefix` and the same Redis database? A different `prefix` is a different bus.
 5. In NestJS, a module that lists several topics needs `topicName` on `@OnLaneEvent`, and a module needs a `consumerName` (or `defaultConsumerName` in `forRoot`). Startup errors name the class and method.
 6. Look at the [dashboard](../dashboard/overview.md): the topic's events, and for one event where it stands for each consumer (`not-read`, `pending`, `retrying`, `dead-letter`, `done`).

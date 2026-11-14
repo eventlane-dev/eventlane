@@ -29,7 +29,7 @@ Open `http://localhost:3000/admin/events/`. Options such as `readOnly`, `authori
 
 ## Documentation
 
-- [Dashboard: getting started](https://eventlane-dev.github.io/eventlane/dashboard/getting-started#express) and [options](https://eventlane-dev.github.io/eventlane/dashboard/getting-started#options)
+- [Dashboard: getting started](https://eventlane-dev.github.io/eventlane/dashboard/getting-started#express) and [options](https://eventlane-dev.github.io/eventlane/dashboard/options)
 
 ## License
 

@@ -62,7 +62,7 @@ async welcome(payload: { id: number }, meta: EventMetadata) {}
 ## Rules to follow
 
 - Delivery is **at-least-once**: handlers must be idempotent (or use `dedup: true`). An event is acknowledged only after the handler returns.
-- A handler that throws is retried with backoff and then moved to the dead-letter stream. Do not catch and swallow errors you want retried.
+- A handler that throws is retried with backoff and then moved to the dead-letter queue. Do not catch and swallow errors you want retried.
 - Order is guaranteed only with one instance, `concurrency: 1` and no failing handlers. Do not assume more.
 - Pass `idempotencyKey` to `emit` when the caller may retry. To keep a database change and its event consistent use an [outbox](core/patterns.md#outbox).
 - Retries go only to the consumer that failed. Do not re-emit an event to retry it.

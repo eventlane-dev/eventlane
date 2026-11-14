@@ -35,7 +35,7 @@ Go through this list before running EventLane for real traffic. Each item links 
 ## Observability
 
 - [ ] **Metrics and alerts** on lag, pending and dead letters. [Metrics](patterns.md#metrics)
-- [ ] **Dead letters are reviewed** and either fixed and replayed or removed. [Dead-letter stream](reliability.md#dead-letter-stream)
+- [ ] **Dead letters are reviewed** and either fixed and replayed or removed. [Dead letters](reliability.md#dead-letters)
 - [ ] **A health check** that proves Redis answers. [Health check](patterns.md#health-check)
 
 ## Dashboard (if you use it)

@@ -39,7 +39,7 @@ If `emit` fails (Redis down longer than the client retries, see [When Redis is u
 
 ## Metrics {#metrics}
 
-`bus.stats(topicName)` gives length, dead letters and, per consumer, lag, pending and retrying events (see [Stats and lag](operations.md#stats-and-lag)). EventLane ships no metrics package; expose these numbers as gauges and alert on them.
+`bus.stats(topicName)` gives length, dead letters and, per consumer, lag, pending and retrying events (see [Stats and lag](inspecting.md#stats-and-lag)). EventLane ships no metrics package; expose these numbers as gauges and alert on them.
 
 ### Prometheus (`prom-client`)
 
@@ -61,7 +61,7 @@ new Gauge({
 
 new Gauge({
   name: 'eventlane_dead_letters',
-  help: 'Events in the dead-letter stream of the topic',
+  help: 'Events in the dead-letter queue of the topic',
   labelNames: ['topic'],
   async collect() {
     for (const topicName of topicNames) {

@@ -43,7 +43,7 @@ EventLane duplicates the connection for blocking reads, so one setting configure
 | `claimIntervalMs` | `number` | `15000` | How often the claim worker runs. |
 | `retryPollMs` | `number` | `1000` | How often due retries are picked up from the consumer's retry set. |
 | `dedupTtlSeconds` | `number` | `86400` | Lifetime of the "done" dedup marker and of producer idempotency keys. |
-| `dlqMaxLen` | `number` | `10000` | Approximate cap of each topic's dead-letter stream. |
+| `dlqMaxLen` | `number` | `10000` | Approximate cap of each topic's dead-letter queue. |
 | `shutdownTimeoutMs` | `number` | `10000` | Max wait for in-flight handlers in `close()`. |
 | `retention` | `{ maxLen?, maxAgeMs? }` \| `false` | `{ maxLen: 1000000 }` | Retention of topics that set none of their own. `false` keeps everything. |
 | `topics` | `Record<topicName, TopicOptions>` | `{}` | Per-topic settings (below). |
@@ -57,7 +57,7 @@ EventLane duplicates the connection for blocking reads, so one setting configure
 | `retention.maxLen` | `number` | none | Approximate maximum number of events (`MAXLEN ~`). |
 | `retention.maxAgeMs` | `number` | none | Approximate maximum age (`MINID ~`). |
 
-If both `maxLen` and `maxAgeMs` are set, both apply. Trimming runs on every `emit` to the topic and is approximate; see [Operations](operations.md#retention). The dead-letter stream is capped separately by `dlqMaxLen`.
+If both `maxLen` and `maxAgeMs` are set, both apply. Trimming runs on every `emit` to the topic and is approximate; see [Operations](operations.md#retention). The dead-letter queue is capped separately by `dlqMaxLen`.
 
 ## Subscription options (`bus.on(..., options)`)
 

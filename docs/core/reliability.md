@@ -6,10 +6,10 @@ EventLane is at-least-once. This page explains what happens when things go wrong
 
 ## Life of an event
 
-1. `emit` stores the event in its topic (`XADD` to `events:<topicName>`).
-2. Each consumer's read loop receives it (`XREADGROUP`); it becomes *pending* for the instance that got it.
-3. Every handler that matches succeeds: acknowledged (`XACK`). The event is done for that consumer.
-4. A handler fails: [retry](#retries-and-backoff), and finally the [dead-letter stream](#dead-letter-stream).
+1. `emit` stores the event in its topic.
+2. Each consumer's read loop receives it; it becomes *pending* for the instance that got it.
+3. Every handler that matches succeeds: the event is acknowledged and done for that consumer.
+4. A handler fails: the event is [retried](#retries-and-backoff) and, after the last attempt, moved to the [dead letters](#dead-letters).
 5. The instance dies mid-handling: see [Crash recovery](#crash-recovery).
 
 An event that no subscription of the consumer matches is acknowledged right away.
@@ -37,7 +37,7 @@ If an event matches several subscriptions and any handler fails, the retry runs 
 
 A retrying event does not block later events: they keep flowing while it waits for its backoff.
 
-## Dead-letter stream
+## Dead letters
 
 After the last failed attempt the event is written to `events:<topicName>:dlq` with the consumer, the attempt count, the error message and stack, and removed from the consumer's pending list, in one atomic step. It is not retried automatically. Events that cannot be decoded (invalid JSON, missing event name) go there immediately.
 
@@ -50,16 +50,16 @@ await bus.dlq.purge('users', { consumerName: 'notifications' });   // or purge('
 
 - `dlq.list(topicName, { consumerName?, eventName?, count?, reverse?, after?, maxScan? })` returns `DeadLetter` objects, oldest first (newest first with `reverse`): `id`, `eventName`, `payload`, `headers`, `consumerName`, `attempt`, `error`, `stack`, `originalId`, `failedAt`. `count` defaults to 100 and is at most 1000.
 - `dlq.get(topicName, id)` returns one dead letter, or `undefined`.
-- `dlq.page(topicName, filter)` is `list` plus the cursor of the next page: `{ entries, next }`. Pass `next` as `after` for the following page; `next` is `undefined` at the end. Filtering by consumer or event name is bounded by `maxScan` (default 10000) like [`readPage`](operations.md#paging-and-filtering): a page can be short while `next` is set.
+- `dlq.page(topicName, filter)` is `list` plus the cursor of the next page: `{ entries, next }`. Pass `next` as `after` for the following page; `next` is `undefined` at the end. Filtering by consumer or event name is bounded by `maxScan` (default 10000) like [`readPage`](inspecting.md#paging-and-filtering): a page can be short while `next` is set.
 - `dlq.count(topicName, { consumerName?, eventName? })` returns how many dead letters there are. Without a filter it is a single `XLEN`.
-- `dlq.retry(topicName, id)` puts the event back into the failing consumer's retry set with a fresh attempt budget (attempt counting restarts at 1) and deletes it from the dead-letter stream. A running instance of that consumer picks it up on its next retry poll. Other consumers do not receive it again.
+- `dlq.retry(topicName, id)` puts the event back into the failing consumer's retry set with a fresh attempt budget (attempt counting restarts at 1) and deletes it from the dead-letter queue. A running instance of that consumer picks it up on its next retry poll. Other consumers do not receive it again.
 - `dlq.retryMany(topicName, { ids?, consumerName?, eventName? })` does that for many at once, each to the consumer that failed it: the listed `ids`, or everything matching the filters (every dead letter without options). It returns how many were re-delivered; unknown ids are skipped.
 - `dlq.purge(topicName, { ids?, consumerName?, eventName? })` deletes the listed `ids`, or the entries matching the filters (all of them without options), and returns how many.
-- The dead-letter stream is capped at about `dlqMaxLen` entries (default 10000).
+- The dead-letter queue is capped at about `dlqMaxLen` entries (default 10000).
 
 ## Crash recovery
 
-If an instance dies after reading an event but before acknowledging it, the event stays in Redis' Pending Entries List (PEL). Every instance runs `XAUTOCLAIM` every `claimIntervalMs` to take over entries that have been idle longer than `claimIdleMs` (default 60 s) and handles them. The number of times Redis delivered the entry becomes the attempt number, so a dead delivery counts as an attempt. A poison event that crashes every instance that touches it therefore cannot loop forever: once its attempts exceed the limit it goes to the dead-letter stream with an explanatory error.
+If an instance dies after reading an event but before acknowledging it, the event stays on the consumer's pending list. Every instance checks every `claimIntervalMs` to take over entries that have been idle longer than `claimIdleMs` (default 60 s) and handles them. The number of times Redis delivered the entry becomes the attempt number, so a dead delivery counts as an attempt. A poison event that crashes every instance that touches it therefore cannot loop forever: once its attempts exceed the limit it goes to the dead-letter queue with an explanatory error.
 
 A retry that was claimed by an instance that then died is recovered the same way: its lease expires after `claimIdleMs` and another instance claims it, again counting the lost delivery as an attempt.
 

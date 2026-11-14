@@ -30,7 +30,7 @@ Open `/admin/events/` on your app. Writes (retry, purge, replay) are off unless 
 
 ## Documentation
 
-- [Dashboard: getting started](https://eventlane-dev.github.io/eventlane/dashboard/getting-started#nestjs) and [options](https://eventlane-dev.github.io/eventlane/dashboard/getting-started#options)
+- [Dashboard: getting started](https://eventlane-dev.github.io/eventlane/dashboard/getting-started#nestjs) and [options](https://eventlane-dev.github.io/eventlane/dashboard/options)
 
 ## License
 

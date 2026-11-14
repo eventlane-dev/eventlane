@@ -104,7 +104,7 @@ Use it when the topic is dynamic or a service emits to many topics. It also offe
 
 `EventLaneEmitter` comes from `forRoot` (which is global), so it needs no `forFeature`. `@InjectLaneEmitter(topicName)` does: the module must list the topic in `forFeature({ topicNames })`, otherwise Nest reports that it cannot resolve the dependency.
 
-To reach the underlying bus (for `stats()`, `dlq`, `replay`, `read` and the other [operations](../core/operations.md)), use `@InjectEventLaneBus() bus: EventLaneBus`.
+To reach the underlying bus (for `stats()`, `dlq`, `replay`, `read` and the other [inspection methods](../core/inspecting.md)), use `@InjectEventLaneBus() bus: EventLaneBus`.
 
 ## Listening: `@OnLaneEvent`
 
