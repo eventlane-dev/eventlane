@@ -28,13 +28,16 @@ const sections = [
     ],
   ],
   ['NestJS', ['nestjs/getting-started', 'nestjs/guide', 'nestjs/configuration']],
-  ['Dashboard', [
+  [
+    'Dashboard',
+    [
       'dashboard/overview',
       'dashboard/getting-started',
       'dashboard/using',
       'dashboard/options',
       'dashboard/api',
-    ]],
+    ],
+  ],
   ['Project', ['comparison', 'changelog']],
 ];
 
