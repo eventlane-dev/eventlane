@@ -1,0 +1,25 @@
+{
+  "name": "@eventlane/example-typed",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Typed events: a NestJS app (and a plain Node.js script) where topic names, event names and payloads are checked at compile time",
+  "scripts": {
+    "start": "tsx src/main.ts",
+    "start:plain": "tsx src/plain.ts",
+    "dev": "tsx watch src/main.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@eventlane/core": "workspace:*",
+    "@eventlane/nestjs": "workspace:*",
+    "@nestjs/common": "^12.4.2",
+    "@nestjs/core": "^12.4.2",
+    "@nestjs/platform-express": "^12.4.2",
+    "ioredis": "^6.0.0",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2"
+  },
+  "devDependencies": {
+    "tsx": "^4.23.15"
+  }
+}

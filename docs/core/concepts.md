@@ -63,7 +63,7 @@ A consumer reads every event of a topic. If a handler listens to a specific `eve
 
 - Everything lives in Redis memory; [retention](operations.md#retention) bounds it.
 - No partitions or ordering keys, and no Redis Cluster (a single node, or Sentinel).
-- No wildcard event names, schema validation or typed event maps.
+- No wildcard event names and no schema validation. Event types are optional and checked only at compile time: [Typed events](typed-events.md).
 - At-least-once only; handlers must tolerate duplicates.
 
 ## Naming rules

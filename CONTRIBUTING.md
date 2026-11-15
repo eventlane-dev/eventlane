@@ -84,6 +84,7 @@ All of them need the Redis from `pnpm redis:up` and a prior `pnpm build`.
 |---|---|---|
 | [examples/express](examples/express) | `pnpm --filter @eventlane/example-express start` | A plain Express app using the core: emit from a route, two consumers, your own `stats` route. No dashboard. |
 | [examples/board](examples/board) | `pnpm --filter @eventlane/example-board start` | The same idea with demo traffic and the dashboard mounted on `/admin/events`. |
+| [examples/typed](examples/typed) | `pnpm --filter @eventlane/example-typed start` | Typed events: topic names, event names and payloads checked at compile time, in NestJS and in plain Node.js. |
 | [examples/nestjs](examples/nestjs) | `pnpm --filter @eventlane/example-nestjs start` | A NestJS app with two consumers of one topic and the dashboard (`BoardModule`). |
 
 ## Pull requests

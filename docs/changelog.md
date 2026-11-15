@@ -2,6 +2,10 @@
 
 Notable changes for people who use EventLane. Versions of all packages move together.
 
+## Unreleased
+
+- **Typed events (optional).** `EventLaneBus<AppEvents>`, `TopicEmitter<UserEvents>`, `EventLaneEmitter<AppEvents>` and `@OnLaneEvent<UserEvents>('user.created')` check topic names, event names and payloads at compile time. Existing untyped code keeps compiling. See [Typed events](core/typed-events.md) and [in NestJS](nestjs/typed-events.md); a runnable app is in `examples/typed`.
+
 ## 0.1.1
 
 Documentation only, no code changes: package pages on npm now describe how to use each package, the packages have search keywords, and the documentation has a quick start, recipes and troubleshooting.
