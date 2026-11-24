@@ -1,6 +1,6 @@
 {
   "name": "@eventlane/board-fastify",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "EventLane board: mounts the dashboard (API and UI) into a Fastify app",
   "keywords": [
     "admin",

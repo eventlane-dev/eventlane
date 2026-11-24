@@ -2,6 +2,11 @@
 
 Notable changes for people who use EventLane. Versions of all packages move together.
 
+## 0.3.0
+
+- **Validation with schemas (optional).** Give events a schema (zod, valibot, ArkType or any [Standard Schema](https://standardschema.dev)) with the `schemas` option and payloads are checked on `emit` (it rejects with `ValidationError`) and on receive (an invalid event goes to the dead letters without retries, or is skipped with `onInvalid: 'drop'`). `validate` chooses where. Without `schemas` nothing changes. See [Validation](core/validation.md); a runnable example with zod is in `examples/validation`.
+- **Dead letters have a `reason`.** `'validation'` when the payload failed its schema, `'error'` otherwise (a new `reason` field in the dead-letter entry; older entries count as `error`). The dashboard marks the first kind as **invalid payload**.
+
 ## 0.2.0
 
 - **Typed events (optional).** `EventLaneBus<AppEvents>`, `TopicEmitter<UserEvents>`, `EventLaneEmitter<AppEvents>` and `@OnLaneEvent<UserEvents>('user.created')` check topic names, event names and payloads at compile time. Existing untyped code keeps compiling. See [Typed events](core/typed-events.md) and [in NestJS](nestjs/typed-events.md); a runnable app is in `examples/typed`.
@@ -21,4 +26,4 @@ First release.
 
 ## Upgrading
 
-The API may still change between minor versions while the major version is 0. Pin the version you use (`"@eventlane/core": "0.2.0"`) and read this page before you upgrade. Upgrade all `@eventlane/*` packages of an app together.
+The API may still change between minor versions while the major version is 0. Pin the version you use (`"@eventlane/core": "0.3.0"`) and read this page before you upgrade. Upgrade all `@eventlane/*` packages of an app together.
