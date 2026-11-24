@@ -2,7 +2,7 @@
 
 Notable changes for people who use EventLane. Versions of all packages move together.
 
-## Unreleased
+## 0.2.0
 
 - **Typed events (optional).** `EventLaneBus<AppEvents>`, `TopicEmitter<UserEvents>`, `EventLaneEmitter<AppEvents>` and `@OnLaneEvent<UserEvents>('user.created')` check topic names, event names and payloads at compile time. Existing untyped code keeps compiling. See [Typed events](core/typed-events.md) and [in NestJS](nestjs/typed-events.md); a runnable app is in `examples/typed`.
 
@@ -21,4 +21,4 @@ First release.
 
 ## Upgrading
 
-The API may still change between minor versions while the major version is 0. Pin the version you use (`"@eventlane/core": "0.1.1"`) and read this page before you upgrade. Upgrade all `@eventlane/*` packages of an app together.
+The API may still change between minor versions while the major version is 0. Pin the version you use (`"@eventlane/core": "0.2.0"`) and read this page before you upgrade. Upgrade all `@eventlane/*` packages of an app together.
