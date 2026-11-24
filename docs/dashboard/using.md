@@ -1,6 +1,6 @@
 # Using the board
 
-What each screen of the dashboard shows and what its actions do. To mount it first, see [Getting started](getting-started.md); the settings behind it (`readOnly`, `authorize`, `redact`) are in [Options and security](options.md).
+What each screen of the dashboard shows and what its actions do. To mount it first, see [Getting started](getting-started.md); the settings behind it (`mode`, `presets`, `authorize`, `redact`) are in [Options and security](options.md).
 
 ## What you see
 
@@ -15,17 +15,18 @@ What each screen of the dashboard shows and what its actions do. To mount it fir
   - Click a consumer to list its pending events (who holds them, for how long, how many deliveries; held longer than a minute is highlighted) and its retrying events (attempt, next retry). Both load 50 at a time.
 - **Topic, Dead letters**: failed events with the consumer, the number of attempts and the error; filter by consumer or event name. Events that failed their [schema](../core/validation.md) are marked **invalid payload**; they are not retried, and their error lists what is wrong. Click one for the stack trace, payload and headers.
 
-With writes enabled (see [Making changes](#making-changes)) the same screens also let you change things.
+With writes or presets enabled (see [Making changes](#making-changes)) the same screens also let you change things.
 
 The page refreshes by polling (every 5 s by default; pick another interval or pause it in the header). While you browse older events the refresh is paused so the list does not move under you. The theme follows your system (light or dark).
 
 ## Making changes
 
-The board is read-only until you pass `readOnly: false`; the header then shows a "writes enabled" badge. Every action asks for confirmation first:
+The board is read-only until you set [`mode`](options.md#modes); the header shows a "presets" or "writes enabled" badge. With `mode: 'presets'` the only action is **Presets**; with `'full'` every action below is available. Every action asks for confirmation first:
 
 | Where | Action | Confirmation |
 |---|---|---|
-| Events | **Send test event…**: stores an event with a name and a JSON payload (every consumer of the topic receives it) | A dialog that says so; nothing is sent until you press Send |
+| Events | **Presets**: a button per [preset](options.md#presets) of the topic. In `'presets'` mode the dialog shows the event read-only and **Send** stores it as defined; in `'full'` mode you can edit the event name, payload and headers first | A dialog that shows the event; nothing is sent until you press Send |
+| Events | **Send test event…** (`'full'` mode only): stores an event with a name and a JSON payload (every consumer of the topic receives it) | A dialog that says so; nothing is sent until you press Send |
 | Dead letters | **Retry** or **Delete** the selected ones (checkboxes), or all (matching the filters) | A dialog that states what will happen and how many |
 | A dead letter | **Retry** or **Delete** it | Retry at once; delete asks |
 | Consumers, a consumer | **Replay…**: continue from the beginning, the end (skip), a time or an event id, with a **preview** of how many events it will read again | A dialog; nothing changes until you press Replay |

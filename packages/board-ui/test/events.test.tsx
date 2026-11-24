@@ -10,7 +10,7 @@ afterEach(() => {
 });
 
 const settings = (overrides: Partial<Settings['config']> = {}): Settings => ({
-  config: { readOnly: true, hidePayloads: false, buses: ['default'], ...overrides },
+  config: { mode: 'readonly', hidePayloads: false, buses: ['default'], presets: [], ...overrides },
   bus: 'default',
   refreshMs: 0,
   version: 0,
@@ -133,7 +133,7 @@ describe('events tab', () => {
       '/events': (call: Call) =>
         call.method === 'POST' ? { id: '9-0' } : { events: [], next: null },
     });
-    render(wrap(settings({ readOnly: false }), <EventsTab topic="users" />));
+    render(wrap(settings({ mode: 'full' }), <EventsTab topic="users" />));
     fireEvent.click(screen.getByRole('button', { name: /Send test event/ }));
     const dialog = screen.getByRole('alertdialog');
     const send = screen.getByRole('button', { name: 'Send' }) as HTMLButtonElement;
@@ -231,5 +231,59 @@ describe('consumer lists', () => {
     expect(screen.getAllByText('probably dead')).toHaveLength(1);
     const row = screen.getByText('stuck').closest('tr');
     expect(row?.textContent).toContain('probably dead');
+  });
+});
+
+describe('presets', () => {
+  const preset = {
+    id: 'new-user',
+    name: 'New user',
+    icon: '👤',
+    topicName: 'users',
+    eventName: 'user.created',
+    payload: { id: 'u_1' },
+    headers: { source: 'board' },
+  };
+  const routes = {
+    '/topics/users/events': { events: [], next: null },
+    '/topics/users': { bus: 'default', topic: { topicName: 'users', length: 0 } },
+    '/send': { id: '1-0' },
+  };
+
+  it('shows no presets button in read-only mode', () => {
+    stubApi(routes);
+    render(wrap(settings({ presets: [preset] }), <EventsTab topic="users" />));
+    expect(screen.queryByRole('button', { name: /New user/ })).toBeNull();
+  });
+
+  it('presets mode sends only the id and shows the event read-only', async () => {
+    const calls = stubApi(routes);
+    render(wrap(settings({ mode: 'presets', presets: [preset] }), <EventsTab topic="users" />));
+    expect(screen.queryByRole('button', { name: /Send test event/ })).toBeNull();
+    fireEvent.click(await screen.findByRole('button', { name: /New user/ }));
+    expect((screen.getByDisplayValue('user.created') as HTMLInputElement).readOnly).toBe(true);
+    fireEvent.click(screen.getByRole('button', { name: 'Send' }));
+    await waitFor(() => expect(calls.some((c) => c.method === 'POST')).toBe(true));
+    const post = calls.find((c) => c.method === 'POST');
+    expect(post?.path).toMatch(/\/presets\/new-user\/send$/);
+    expect(post?.body).toBeUndefined();
+  });
+
+  it('full mode lets you edit the preset before sending it', async () => {
+    const calls = stubApi(routes);
+    render(wrap(settings({ mode: 'full', presets: [preset] }), <EventsTab topic="users" />));
+    fireEvent.click(await screen.findByRole('button', { name: /New user/ }));
+    const name = screen.getByDisplayValue('user.created') as HTMLInputElement;
+    expect(name.readOnly).toBe(false);
+    fireEvent.input(name, { target: { value: 'user.updated' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Send' }));
+    await waitFor(() => expect(calls.some((c) => c.method === 'POST')).toBe(true));
+    const post = calls.find((c) => c.method === 'POST');
+    expect(post?.path).toMatch(/\/topics\/users\/events$/);
+    expect(post?.body).toEqual({
+      eventName: 'user.updated',
+      payload: { id: 'u_1' },
+      headers: { source: 'board' },
+    });
   });
 });

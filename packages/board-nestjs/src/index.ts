@@ -93,7 +93,7 @@ class BoardMounter implements OnModuleInit {
 export class BoardModule {
   /**
    * Serves the EventLane board at `route`. It shows the bus of `EventLaneModule` unless you pass
-   * `buses`, and is read-only unless you pass `readOnly: false`.
+   * `buses`, and is read-only unless you set `mode` (`'presets'` or `'full'`).
    */
   static forRoot(options: BoardModuleOptions = {}): DynamicModule {
     return {

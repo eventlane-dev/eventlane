@@ -7,14 +7,14 @@ import type {
 } from '@eventlane/board-api';
 import type { ComponentChildren } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
-import { ConfirmDialog, EmitDialog, ReplayDialog, useAction } from './actions';
+import { ConfirmDialog, EmitDialog, PresetDialog, ReplayDialog, useAction } from './actions';
 import { actions, api } from './api';
 import { Async, Badge, CopyButton, Count, Drawer, Json, Mono } from './components';
 import { useSettings } from './context';
 import { formatNumber, formatRelative, formatSize, formatTime } from './format';
 import { useLoad } from './hooks';
 import { type Tab, topicHref } from './route';
-import type { DeadLetterSummary, EventSummary, TopicOverview } from './types';
+import type { BoardPresetView, DeadLetterSummary, EventSummary, TopicOverview } from './types';
 
 /** An instance idle this long while holding events is probably dead (claimIdleMs defaults to 60 s). */
 const IDLE_WARNING_MS = 60_000;
@@ -141,7 +141,7 @@ export function TopicView({ topic, tab }: { topic: string; tab: Tab }) {
       <div class="toolbar">
         <h1>{topic}</h1>
         {stats.data && <span class="muted">{formatNumber(stats.data.topic.length)} events</span>}
-        {!config.readOnly && (
+        {config.mode === 'full' && (
           <button type="button" class="danger-outline" onClick={() => setDeleting(true)}>
             Delete topic…
           </button>
@@ -217,7 +217,7 @@ interface EventQuery {
 
 export function EventsTab({ topic }: { topic: string }) {
   const { bus, refreshMs, version, config } = useSettings();
-  const writable = !config.readOnly;
+  const writable = config.mode === 'full';
   const [query, setQuery] = useState<EventQuery>({
     eventName: '',
     search: '',
@@ -232,6 +232,10 @@ export function EventsTab({ topic }: { topic: string }) {
   const [busy, setBusy] = useState(false);
   const [open, setOpen] = useState<string | undefined>();
   const [sending, setSending] = useState(false);
+  const [presetOpen, setPresetOpen] = useState<BoardPresetView | undefined>();
+  const presets = config.presets.filter(
+    (p) => p.topicName === topic && (p.bus === undefined || p.bus === bus),
+  );
   const [jump, setJump] = useState('');
   const [jumpError, setJumpError] = useState<string | undefined>();
 
@@ -350,6 +354,24 @@ export function EventsTab({ topic }: { topic: string }) {
           </button>
         )}
       </form>
+      {config.mode !== 'readonly' && presets.length > 0 && (
+        <div class="presets">
+          <span class="muted">Presets</span>
+          {presets.map((preset) => (
+            <button
+              key={preset.id}
+              type="button"
+              class="preset"
+              title={preset.description ?? preset.eventName}
+              onClick={() => setPresetOpen(preset)}
+            >
+              {preset.icon && <span aria-hidden="true">{preset.icon} </span>}
+              {preset.name}
+            </button>
+          ))}
+        </div>
+      )}
+      {presetOpen && <PresetDialog preset={presetOpen} onClose={() => setPresetOpen(undefined)} />}
       <form
         class="filters"
         onSubmit={(e) => {
@@ -597,7 +619,7 @@ export function ConsumerDetail({ topic, consumer }: { topic: string; consumer: C
   const name = consumer.consumerName;
   const [open, setOpen] = useState<string | undefined>();
   const [dialog, setDialog] = useState<'replay' | 'remove' | undefined>();
-  const writable = !config.readOnly;
+  const writable = config.mode === 'full';
   const run = useAction();
 
   return (
@@ -872,7 +894,7 @@ type DlqAction = 'retry-selected' | 'purge-selected' | 'retry-all' | 'purge-all'
 
 export function DeadLettersTab({ topic }: { topic: string }) {
   const { bus, refreshMs, version, config } = useSettings();
-  const writable = !config.readOnly;
+  const writable = config.mode === 'full';
   const run = useAction();
   const [consumer, setConsumer] = useState('');
   const [eventName, setEventName] = useState('');
@@ -1146,7 +1168,7 @@ function DeadLetterDrawer({
   onClose: () => void;
 }) {
   const { bus, config } = useSettings();
-  const writable = !config.readOnly;
+  const writable = config.mode === 'full';
   const run = useAction();
   const [deleting, setDeleting] = useState(false);
   const loaded = useLoad(() => api.deadLetter(bus, topic, id), [bus, topic, id], 0);

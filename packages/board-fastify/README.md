@@ -2,7 +2,7 @@
 
 A web dashboard for [EventLane](https://www.npmjs.com/package/@eventlane/core), as a Fastify plugin: browse the events of a topic, see where each consumer stands, retry or purge dead letters and replay history.
 
-> **The dashboard has no login of its own.** Mount it behind your authentication (middleware or the `authorize` option) or on an internal network. It is read-only unless you pass `readOnly: false`.
+> **The dashboard has no login of its own.** Mount it behind your authentication (middleware or the `authorize` option) or on an internal network. It is read-only unless you set `mode` (`'presets'` or `'full'`).
 
 ## Install
 

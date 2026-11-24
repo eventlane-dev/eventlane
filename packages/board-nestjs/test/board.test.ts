@@ -57,7 +57,12 @@ for (const platform of ['express', 'fastify'] as const) {
       expect(html).toContain('EventLane board');
 
       const config = (await (await fetch(`${url}/admin/events/api/config`)).json()) as Json;
-      expect(config).toEqual({ readOnly: true, hidePayloads: false, buses: ['default'] });
+      expect(config).toEqual({
+        mode: 'readonly',
+        hidePayloads: false,
+        buses: ['default'],
+        presets: [],
+      });
       const topics = (await (await fetch(`${url}/admin/events/api/topics`)).json()) as Json;
       expect(topics.topics).toEqual([expect.objectContaining({ topicName: 'users', length: 1 })]);
     });
@@ -75,9 +80,7 @@ for (const platform of ['express', 'fastify'] as const) {
 
       expect((await fetch(`${url}/admin/events/`)).status).toBe(404);
       expect((await fetch(`${url}/board/`)).status).toBe(200);
-      expect(((await (await fetch(`${url}/board/api/config`)).json()) as Json).readOnly).toBe(
-        false,
-      );
+      expect(((await (await fetch(`${url}/board/api/config`)).json()) as Json).mode).toBe('full');
       const events = (await (await fetch(`${url}/board/api/topics/users/events`)).json()) as Json;
       expect(events.events[0].preview).toBe('"***"');
     });

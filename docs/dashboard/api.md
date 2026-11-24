@@ -1,6 +1,6 @@
 # HTTP API
 
-JSON over HTTP, used by the web UI and available to scripts. The adapters mount it under `/api` of the board (`/admin/events/api/...`), and the response types are exported from `@eventlane/board-api`. Reads are `GET`. Writes (`POST` and `DELETE`, see [Write routes](#write-routes)) are refused with `403 { "error": "the board is read-only" }` unless the board was created with `readOnly: false`.
+JSON over HTTP, used by the web UI and available to scripts. The adapters mount it under `/api` of the board (`/admin/events/api/...`), and the response types are exported from `@eventlane/board-api`. Reads are `GET`. Writes (`POST` and `DELETE`, see [Write routes](#write-routes)) are refused with `403` unless the board's [`mode`](options.md#modes) allows them: `"the board is read-only"` in `readonly`, `"this board only sends presets"` in `presets`.
 
 Common to all routes:
 
@@ -16,7 +16,7 @@ Common to all routes:
 
 ### `GET /config`
 
-`{ readOnly, hidePayloads, buses: string[] }`.
+`{ mode, hidePayloads, buses: string[], presets }`, where `mode` is `"readonly"`, `"presets"` or `"full"` and `presets` is the list of [presets](options.md#presets): `{ id, name, icon?, description?, topicName, eventName, payload, headers, bus? }`.
 
 ### `GET /topics`
 
@@ -61,7 +61,7 @@ One event and where it stands for every consumer: `{ event, consumers }`. `event
 
 ## Write routes
 
-Available only with `readOnly: false`. Every write must carry:
+Available only when `mode` is `'full'`, except `POST /presets/:id/send`, which `'presets'` allows too. Every write must carry:
 
 - the header `X-EventLane-Board: 1`;
 - no foreign origin: when the request has an `Origin` header it must be the board's own host (or in `allowedOrigins`), and `Sec-Fetch-Site: cross-site` is refused;
@@ -72,6 +72,10 @@ Otherwise the answer is `403`. Each route checks `authorize(request, action)` wi
 ### `POST /topics/:topic/events`
 
 Action `event.emit`. Stores a test event in the topic; every consumer of the topic receives it. Body: `{ eventName: string, payload?: any JSON, headers?: Record<string, string> }` (`eventName` 1 to 200 characters, at most 20 headers). Answers `{ id }`.
+
+### `POST /presets/:id/send`
+
+Action `preset.send`. Stores the [preset](options.md#presets) with that id exactly as configured; the request body is ignored, so nothing can be overridden. Query `bus` picks the bus (default: the first); a preset that names another `bus` is answered `404`. Answers `{ id }`. Available in `'presets'` and `'full'` mode.
 
 ### `POST /topics/:topic/dlq/retry`
 

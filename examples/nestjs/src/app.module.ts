@@ -12,7 +12,7 @@ import { WebhooksModule } from './webhooks.module';
       prefix: 'example',
     }),
     // the dashboard, on /admin/events: it shows the bus of EventLaneModule
-    BoardModule.forRoot({ readOnly: false }),
+    BoardModule.forRoot({ mode: 'full' }),
     UsersModule,
     NotificationsModule,
     WebhooksModule,

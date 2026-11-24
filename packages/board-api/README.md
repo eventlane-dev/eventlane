@@ -13,7 +13,7 @@ npm install @eventlane/board-api @eventlane/core
 ```ts
 import { createBoardApi } from '@eventlane/board-api';
 
-const api = createBoardApi({ buses: bus, readOnly: true });
+const api = createBoardApi({ buses: bus, mode: 'readonly' });
 
 // translate your framework's request, then write the answer; handle never throws
 const { status, body } = await api.handle({ method: 'GET', path: '/topics', query: {}, raw: request });

@@ -60,7 +60,7 @@ The consumer's Redis state was deleted while it was running (for example `FLUSHA
 ## The dashboard shows nothing, or answers 403 or 429
 
 - Empty: check that the board uses the same bus (same `prefix` and Redis) as your app.
-- `403`: your `authorize` function returned `false`, or a write was attempted while the board is read-only (`readOnly` is the default).
+- `403`: your `authorize` function returned `false`, or a write was attempted while the board is read-only (`mode: 'readonly'` is the default; `'presets'` only sends presets).
 - `429`: the rate limit (100 requests per 10 seconds per client by default) was hit; slow the polling interval in the page header.
 
 ## Still stuck

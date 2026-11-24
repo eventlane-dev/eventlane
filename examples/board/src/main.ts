@@ -80,8 +80,19 @@ app.use(
   '/admin/events',
   createBoard({
     buses: bus,
-    // the board is read-only unless you say otherwise; this demo allows writes
-    readOnly: process.env.BOARD_READ_ONLY === 'true',
+    // 'readonly' (default), 'presets' (only the presets below) or 'full'; the demo allows everything
+    mode: (process.env.BOARD_MODE as 'readonly' | 'presets' | 'full' | undefined) ?? 'full',
+    presets: [
+      {
+        name: 'New order',
+        icon: '🛒',
+        description: 'A test order.placed event',
+        topicName: 'orders',
+        eventName: 'order.placed',
+        payload: { orderId: 9999, total: 42, customer: 'test' },
+        headers: { 'x-source': 'board' },
+      },
+    ],
     onWrite: (entry) => console.log('[board]', entry.action, entry.topicName, entry.detail),
     // hide e-mail addresses in everything the board shows
     redact: (event) => ({

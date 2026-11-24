@@ -11,7 +11,10 @@ export { createBoardApi } from './api';
 export type {
   BoardAction,
   BoardConfig,
+  BoardMode,
   BoardOptions,
+  BoardPreset,
+  BoardPresetView,
   BoardRequest,
   BoardResponse,
   BoardWriteEntry,

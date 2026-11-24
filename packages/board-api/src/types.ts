@@ -14,7 +14,8 @@ export type BoardAction =
   | 'consumer.replay'
   | 'consumer.remove'
   | 'topic.delete'
-  | 'event.emit';
+  | 'event.emit'
+  | 'preset.send';
 
 /** The header every write request must carry (it makes browsers refuse cross-site writes). */
 export const CSRF_HEADER = 'x-eventlane-board';
@@ -56,8 +57,15 @@ export interface BoardOptions {
    * and an object uses its keys as names.
    */
   buses: EventLaneBus | EventLaneBus[] | Record<string, EventLaneBus>;
-  /** Default: `true`: every write is refused. Writes need an explicit `false`. */
+  /**
+   * What the board may do. `'readonly'` (default): no writes. `'presets'`: read and send the
+   * `presets`, nothing else. `'full'`: every action, including events of any name and payload.
+   */
+  mode?: BoardMode;
+  /** Older switch: `false` means `mode: 'full'`. Ignored when `mode` is set. */
   readOnly?: boolean;
+  /** Ready-made events the board can send (see `mode`). */
+  presets?: BoardPreset[];
   /** Called for every request, with the host's request object. Return `false` to answer 403. */
   authorize?: (request: unknown, action: BoardAction) => boolean | Promise<boolean>;
   /** Applied to every payload and header set before it leaves the server. */
@@ -95,11 +103,37 @@ export interface BoardWriteEntry {
   request: unknown;
 }
 
+export type BoardMode = 'readonly' | 'presets' | 'full';
+
+/** A ready-made event with a button on the board. */
+export interface BoardPreset {
+  /** Shown on the button; unique. The preset's id is derived from it. */
+  name: string;
+  /** A short text such as an emoji. */
+  icon?: string;
+  description?: string;
+  topicName: string;
+  eventName: string;
+  /** Default: `null`. */
+  payload?: unknown;
+  /** At most 20 string values. */
+  headers?: Record<string, string>;
+  /** The bus the preset belongs to; without it the preset is offered on every bus. */
+  bus?: string;
+}
+
+export interface BoardPresetView extends BoardPreset {
+  id: string;
+  payload: unknown;
+  headers: Record<string, string>;
+}
+
 export interface BoardConfig {
-  readOnly: boolean;
+  mode: BoardMode;
   hidePayloads: boolean;
   /** Names of the mounted buses; the first is the default. */
   buses: string[];
+  presets: BoardPresetView[];
 }
 
 export interface TopicOverview {

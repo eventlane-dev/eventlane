@@ -19,6 +19,6 @@ Then open http://localhost:3000/admin/events.
 |---|---|---|
 | `REDIS_URL` | `redis://localhost:6390` | The Redis to use. |
 | `PORT` | `3000` | The HTTP port. |
-| `BOARD_READ_ONLY` | `false` | `true` makes the board read-only. |
+| `BOARD_MODE` | `full` | `readonly` or `presets` restricts the board (`presets` only sends the demo preset). |
 
 For the same kind of app without the dashboard see [examples/express](../express); with NestJS see [examples/nestjs](../nestjs).

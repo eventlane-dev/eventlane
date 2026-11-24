@@ -13,7 +13,7 @@ The dashboard is a separate set of packages that you mount into an app you alrea
 | `@eventlane/board-ui` | The single-page web app, shipped as static files. |
 
 > [!WARNING]
-> **The dashboard has no login of its own.** Anyone who can open its address can read your event payloads and headers (and change things when `readOnly: false`). Mount it behind your authentication (middleware, or the `authorize` option) or keep it on an internal network. See [Security notes](options.md#security-notes).
+> **The dashboard has no login of its own.** Anyone who can open its address can read your event payloads and headers (and change things when `mode` is `'presets'` or `'full'`). Mount it behind your authentication (middleware, or the `authorize` option) or keep it on an internal network. See [Security notes](options.md#security-notes).
 
 ## Mount it
 
@@ -79,7 +79,7 @@ import { EventLaneModule } from '@eventlane/nestjs';
 @Module({
   imports: [
     EventLaneModule.forRoot({ redisUrl: process.env.REDIS_URL, defaultConsumerName: 'my-app' }),
-    // the board shows the bus of EventLaneModule; read-only unless readOnly: false
+    // the board shows the bus of EventLaneModule; read-only unless you set mode
     BoardModule.forRoot({ route: '/admin/events' }),
   ],
 })
@@ -99,7 +99,7 @@ export class AppModule {}
 ## Next
 
 - [Using the board](using.md): what each screen shows and what the actions do.
-- [Options and security](options.md): `readOnly`, `authorize`, `redact` and the rest.
+- [Options and security](options.md): `mode`, `presets`, `authorize`, `redact` and the rest.
 
 ## Other frameworks
 

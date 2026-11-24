@@ -108,7 +108,12 @@ async function seed() {
 describe('config and routing', () => {
   it('is read-only by default and names the buses', async () => {
     const api = createBoardApi({ buses: createBus() });
-    expect(api.config).toEqual({ readOnly: true, hidePayloads: false, buses: ['default'] });
+    expect(api.config).toEqual({
+      mode: 'readonly',
+      hidePayloads: false,
+      buses: ['default'],
+      presets: [],
+    });
     expect(await call(api, '/config')).toEqual({ status: 200, body: api.config });
 
     const many = createBoardApi({ buses: [createBus(), createBus({ prefix: `${prefix}-2` })] });
@@ -888,5 +893,122 @@ describe('writes: test events', () => {
   it('is refused while read-only', async () => {
     const api = createBoardApi({ buses: createBus() });
     expect((await write(api, 'POST', '/topics/users/events', { eventName: 'x' })).status).toBe(403);
+  });
+});
+
+describe('modes and presets', () => {
+  const preset = {
+    name: 'New user',
+    icon: '👤',
+    topicName: 'users',
+    eventName: 'user.created',
+    payload: { id: 'u_1' },
+    headers: { source: 'board' },
+  };
+
+  it('reports the mode and the presets in the config', () => {
+    expect(createBoardApi({ buses: createBus() }).config.mode).toBe('readonly');
+    expect(createBoardApi({ buses: createBus(), readOnly: false }).config.mode).toBe('full');
+    const api = createBoardApi({ buses: createBus(), mode: 'presets', presets: [preset] });
+    expect(api.config.mode).toBe('presets');
+    expect(api.config.presets).toEqual([{ ...preset, id: 'new-user' }]);
+    // mode wins over the older switch
+    expect(
+      createBoardApi({ buses: createBus(), mode: 'readonly', readOnly: false }).config.mode,
+    ).toBe('readonly');
+  });
+
+  it('rejects invalid presets when the board is created', () => {
+    const make = (presets: unknown[]) => () =>
+      createBoardApi({ buses: createBus(), presets: presets as never });
+    expect(make([{ ...preset, name: '' }])).toThrow(/needs a name/);
+    expect(make([preset, { ...preset, name: 'new  USER' }])).toThrow(/clashes/);
+    expect(make([{ ...preset, topicName: '' }])).toThrow(/topicName/);
+    expect(make([{ ...preset, eventName: '' }])).toThrow(/eventName/);
+    expect(make([{ ...preset, headers: { a: 1 } }])).toThrow(/headers/);
+    expect(make([{ ...preset, bus: 'nope' }])).toThrow(/unknown bus/);
+    expect(() => createBoardApi({ buses: createBus(), mode: 'x' as never })).toThrow(/mode/);
+  });
+
+  it('presets mode sends a preset as configured and refuses everything else', async () => {
+    const bus = createBus();
+    const seen: string[] = [];
+    const audit: Body[] = [];
+    const api = createBoardApi({
+      buses: bus,
+      mode: 'presets',
+      presets: [preset],
+      authorize: (_request, action) => {
+        seen.push(action);
+        return true;
+      },
+      onWrite: (entry) => void audit.push(entry),
+    });
+    // the body cannot override anything
+    const sent = await write(api, 'POST', '/presets/new-user/send', {
+      eventName: 'evil',
+      payload: { hacked: true },
+    });
+    expect(sent.status).toBe(200);
+    const stored = (await bus.readPage('users', {})).events[0];
+    expect(stored).toMatchObject({
+      id: sent.body.id,
+      eventName: 'user.created',
+      payload: { id: 'u_1' },
+      headers: { source: 'board' },
+    });
+    expect(seen).toContain('preset.send');
+    expect(audit.at(-1)).toMatchObject({ action: 'preset.send', topicName: 'users' });
+
+    for (const [method, path, body] of [
+      ['POST', '/topics/users/events', { eventName: 'x' }],
+      ['POST', '/topics/users/dlq/retry', { all: true }],
+      ['DELETE', '/topics/users', undefined],
+    ] as const) {
+      expect(await write(api, method, path, body, { query: { confirm: 'users' } })).toMatchObject({
+        status: 403,
+        body: { error: 'this board only sends presets' },
+      });
+    }
+    expect((await write(api, 'POST', '/presets/missing/send')).status).toBe(404);
+    expect((await write(api, 'POST', '/presets/new-user/send', {}, { headers: {} })).status).toBe(
+      403,
+    ); // still needs the CSRF header
+    await bus.deleteTopic('users', { confirm: true });
+  });
+
+  it('readonly refuses presets, full allows them, authorize can say no', async () => {
+    const readonly = createBoardApi({ buses: createBus(), presets: [preset] });
+    expect((await write(readonly, 'POST', '/presets/new-user/send')).status).toBe(403);
+
+    const bus = createBus();
+    const full = createBoardApi({ buses: bus, mode: 'full', presets: [preset] });
+    expect((await write(full, 'POST', '/presets/new-user/send')).status).toBe(200);
+
+    const denied = createBoardApi({
+      buses: bus,
+      mode: 'presets',
+      presets: [preset],
+      authorize: (_request, action) => action !== 'preset.send',
+    });
+    expect((await write(denied, 'POST', '/presets/new-user/send')).status).toBe(403);
+    await bus.deleteTopic('users', { confirm: true });
+  });
+
+  it('a preset of one bus is not sent through another', async () => {
+    const one = createBus();
+    const two = createBus({ prefix: `${prefix}-2` });
+    const api = createBoardApi({
+      buses: { one, two },
+      mode: 'presets',
+      presets: [{ ...preset, bus: 'two' }],
+    });
+    expect(
+      (await write(api, 'POST', '/presets/new-user/send', undefined, { query: { bus: 'one' } }))
+        .status,
+    ).toBe(404);
+    expect((await write(api, 'POST', '/presets/new-user/send')).status).toBe(200); // defaults to its own bus
+    expect((await two.stats('users')).length).toBe(1);
+    await two.deleteTopic('users', { confirm: true });
   });
 });

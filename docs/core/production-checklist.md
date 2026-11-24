@@ -41,5 +41,5 @@ Go through this list before running EventLane for real traffic. Each item links 
 ## Dashboard (if you use it)
 
 - [ ] **Behind authentication.** Set `authorize`, or mount it behind your own auth middleware. [Dashboard overview](../dashboard/overview.md)
-- [ ] **`readOnly`** unless people really need to retry, delete or replay from the UI.
+- [ ] **`mode: 'readonly'`** (the default) unless people really need to retry, delete or replay from the UI; `'presets'` only sends the test events you defined.
 - [ ] **`redact` / `hidePayloads`** configured when payloads hold personal data.

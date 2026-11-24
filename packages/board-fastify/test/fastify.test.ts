@@ -81,7 +81,12 @@ describe('the API', () => {
 
     const config = await app.inject({ url: '/admin/events/api/config' });
     expect(config.headers['cache-control']).toBe('no-store');
-    expect(config.json()).toEqual({ readOnly: true, hidePayloads: false, buses: ['default'] });
+    expect(config.json()).toEqual({
+      mode: 'readonly',
+      hidePayloads: false,
+      buses: ['default'],
+      presets: [],
+    });
 
     const topics = (await app.inject({ url: '/admin/events/api/topics' })).json() as Json;
     expect(topics.topics).toEqual([expect.objectContaining({ topicName: 'users', length: 1 })]);

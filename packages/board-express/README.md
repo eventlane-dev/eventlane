@@ -2,7 +2,7 @@
 
 A web dashboard for [EventLane](https://www.npmjs.com/package/@eventlane/core), mounted into an Express app: browse the events of a topic, see where each consumer stands, retry or purge dead letters and replay history.
 
-> **The dashboard has no login of its own.** Mount it behind your authentication (middleware or the `authorize` option) or on an internal network. It is read-only unless you pass `readOnly: false`.
+> **The dashboard has no login of its own.** Mount it behind your authentication (middleware or the `authorize` option) or on an internal network. It is read-only unless you set `mode` (`'presets'` or `'full'`).
 
 ## Install
 
@@ -25,7 +25,7 @@ app.use('/admin/events', createBoard({ buses: bus }).router);
 app.listen(3000);
 ```
 
-Open `http://localhost:3000/admin/events/`. Options such as `readOnly`, `authorize`, `redact` and `hidePayloads` are in the docs.
+Open `http://localhost:3000/admin/events/`. Options such as `mode`, `presets`, `authorize`, `redact` and `hidePayloads` are in the docs.
 
 ## Documentation
 

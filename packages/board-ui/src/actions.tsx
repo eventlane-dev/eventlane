@@ -4,6 +4,7 @@ import { actions } from './api';
 import { useModal } from './components';
 import { useSettings } from './context';
 import { formatNumber } from './format';
+import type { BoardPresetView } from './types';
 
 /** Runs a write; on success shows its message and reloads the lists, on failure rethrows. */
 export function useAction() {
@@ -217,6 +218,98 @@ export function ReplayDialog({
         )}
         {problem && <span class="error">{problem}</span>}
       </p>
+    </ConfirmDialog>
+  );
+}
+
+/**
+ * Sends a preset. In `presets` mode the event is shown read-only and only the preset's id goes to
+ * the server; in `full` mode it can be edited first and is sent as an ordinary test event.
+ */
+export function PresetDialog({
+  preset,
+  onClose,
+}: {
+  preset: BoardPresetView;
+  onClose: () => void;
+}) {
+  const { bus, config } = useSettings();
+  const run = useAction();
+  const editable = config.mode === 'full';
+  const [eventName, setEventName] = useState(preset.eventName);
+  const [payload, setPayload] = useState(JSON.stringify(preset.payload, null, 2));
+  const [headers, setHeaders] = useState(JSON.stringify(preset.headers, null, 2));
+  const parse = (text: string): { value: unknown } | { error: string } => {
+    try {
+      return { value: JSON.parse(text) };
+    } catch (error) {
+      return { error: (error as Error).message };
+    }
+  };
+  const parsedPayload = parse(payload);
+  const parsedHeaders = parse(headers);
+  const invalid = editable && ('error' in parsedPayload || 'error' in parsedHeaders);
+
+  return (
+    <ConfirmDialog
+      title={`${preset.icon ? `${preset.icon} ` : ''}${preset.name}`}
+      confirmLabel="Send"
+      disabled={invalid || (editable && eventName.trim() === '')}
+      onClose={onClose}
+      onConfirm={() =>
+        run(async () => {
+          if (!editable) {
+            const result = await actions.sendPreset(bus, preset.id);
+            return `Event ${result.id} stored in ${preset.topicName}`;
+          }
+          if ('error' in parsedPayload || 'error' in parsedHeaders) {
+            throw new Error('The payload and headers must be valid JSON');
+          }
+          const result = await actions.emitEvent(bus, preset.topicName, {
+            eventName: eventName.trim(),
+            payload: parsedPayload.value,
+            headers: parsedHeaders.value as Record<string, string>,
+          });
+          return `Event ${result.id} stored in ${preset.topicName}`;
+        })
+      }
+    >
+      {preset.description && <p>{preset.description}</p>}
+      <p class="muted">
+        The event is stored for real in <strong>{preset.topicName}</strong>: every consumer of the
+        topic receives it and runs its handlers.
+      </p>
+      <label class="field">
+        <span>Event name</span>
+        <input
+          type="text"
+          value={eventName}
+          readOnly={!editable}
+          onInput={(e) => setEventName(e.currentTarget.value)}
+        />
+      </label>
+      <label class="field">
+        <span>Payload (JSON)</span>
+        <textarea
+          rows={6}
+          spellcheck={false}
+          value={payload}
+          readOnly={!editable}
+          onInput={(e) => setPayload(e.currentTarget.value)}
+        />
+      </label>
+      <label class="field">
+        <span>Headers (JSON)</span>
+        <textarea
+          rows={3}
+          spellcheck={false}
+          value={headers}
+          readOnly={!editable}
+          onInput={(e) => setHeaders(e.currentTarget.value)}
+        />
+      </label>
+      {editable && 'error' in parsedPayload && <p class="error">Payload: {parsedPayload.error}</p>}
+      {editable && 'error' in parsedHeaders && <p class="error">Headers: {parsedHeaders.error}</p>}
     </ConfirmDialog>
   );
 }

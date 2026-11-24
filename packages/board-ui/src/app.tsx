@@ -74,8 +74,10 @@ export function App() {
               ))}
             </select>
           </label>
-          {config.data.readOnly ? (
+          {config.data.mode === 'readonly' ? (
             <Badge tone="good">read-only</Badge>
+          ) : config.data.mode === 'presets' ? (
+            <Badge tone="warn">presets only</Badge>
           ) : (
             <Badge tone="warn">writes enabled</Badge>
           )}

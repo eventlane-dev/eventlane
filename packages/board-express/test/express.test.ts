@@ -82,9 +82,10 @@ describe('the API', () => {
     const config = await fetch(url('/api/config'));
     expect(config.headers.get('cache-control')).toBe('no-store');
     expect(await config.json()).toEqual({
-      readOnly: true,
+      mode: 'readonly',
       hidePayloads: false,
       buses: ['default'],
+      presets: [],
     });
 
     const topics = (await (await fetch(url('/api/topics'))).json()) as Json;

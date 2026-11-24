@@ -15,7 +15,7 @@ afterEach(() => {
 });
 
 const settings = (overrides: Partial<Settings> = {}): Settings => ({
-  config: { readOnly: true, hidePayloads: false, buses: ['default'] },
+  config: { mode: 'readonly', hidePayloads: false, buses: ['default'], presets: [] },
   bus: 'default',
   refreshMs: 0,
   version: 0,
@@ -290,7 +290,9 @@ describe('views', () => {
     stubApi({ '/dlq': deadLetters });
     render(
       withSettings(
-        settings({ config: { readOnly: false, hidePayloads: false, buses: ['default'] } }),
+        settings({
+          config: { mode: 'full', hidePayloads: false, buses: ['default'], presets: [] },
+        }),
         <DeadLettersTab topic="users" />,
       ),
     );

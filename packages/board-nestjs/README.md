@@ -2,7 +2,7 @@
 
 `BoardModule`: the [EventLane](https://www.npmjs.com/package/@eventlane/core) dashboard inside a NestJS app, on a route you choose. It finds the bus of `EventLaneModule` by itself and works on the Express and Fastify platforms.
 
-> **The dashboard has no login of its own.** Mount it behind your authentication (middleware or the `authorize` option) or on an internal network. It is read-only unless you pass `readOnly: false`.
+> **The dashboard has no login of its own.** Mount it behind your authentication (middleware or the `authorize` option) or on an internal network. It is read-only unless you set `mode` (`'presets'` or `'full'`).
 
 ## Install
 
@@ -26,7 +26,7 @@ npm install @eventlane/board-nestjs @eventlane/board-express @eventlane/nestjs @
 export class AppModule {}
 ```
 
-Open `/admin/events/` on your app. Writes (retry, purge, replay) are off unless you set `readOnly: false`.
+Open `/admin/events/` on your app. Writes (retry, purge, replay) need `mode: 'full'`; `mode: 'presets'` only sends the presets you define.
 
 ## Documentation
 

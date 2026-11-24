@@ -100,6 +100,8 @@ export const actions = {
     topic: string,
     body: { eventName: string; payload?: unknown; headers?: Record<string, string> },
   ) => send<EmitResponse>('POST', `topics/${enc(topic)}/events`, { query: { bus }, body }),
+  sendPreset: (bus: string, id: string) =>
+    send<EmitResponse>('POST', `presets/${enc(id)}/send`, { query: { bus } }),
   retryDeadLetters: (bus: string, topic: string, scope: DeadLetterScope) =>
     send<RetryResponse>('POST', `topics/${enc(topic)}/dlq/retry`, { query: { bus }, body: scope }),
   purgeDeadLetters: (bus: string, topic: string, scope: DeadLetterScope) =>

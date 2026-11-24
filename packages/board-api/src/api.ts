@@ -4,7 +4,10 @@ import { createRateLimiter } from './rate-limit';
 import {
   type BoardAction,
   type BoardConfig,
+  type BoardMode,
   type BoardOptions,
+  type BoardPreset,
+  type BoardPresetView,
   type BoardRequest,
   type BoardResponse,
   CSRF_HEADER,
@@ -75,6 +78,52 @@ function resolveBuses(buses: BoardOptions['buses']): Map<string, EventLaneBus> {
   return map;
 }
 
+const validHeaders = (headers: unknown): headers is Record<string, string> =>
+  typeof headers === 'object' &&
+  headers !== null &&
+  !Array.isArray(headers) &&
+  Object.keys(headers).length <= 20 &&
+  Object.values(headers).every((value) => typeof value === 'string');
+
+/** Checks the presets and gives each an id derived from its name. */
+function resolvePresets(
+  list: BoardPreset[],
+  buses: Map<string, EventLaneBus>,
+): Map<string, BoardPresetView> {
+  const result = new Map<string, BoardPresetView>();
+  for (const preset of list) {
+    const label = `createBoardApi: preset ${JSON.stringify(preset?.name)}`;
+    if (typeof preset?.name !== 'string' || preset.name.trim() === '') {
+      throw new Error('createBoardApi: every preset needs a name');
+    }
+    const id = preset.name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+    if (id === '') throw new Error(`${label} needs letters or digits in its name`);
+    if (result.has(id)) throw new Error(`${label} clashes with another preset of the same id`);
+    if (typeof preset.topicName !== 'string' || preset.topicName === '') {
+      throw new Error(`${label} needs a topicName`);
+    }
+    if (
+      typeof preset.eventName !== 'string' ||
+      preset.eventName === '' ||
+      preset.eventName.length > 200
+    ) {
+      throw new Error(`${label} needs an eventName of 1 to 200 characters`);
+    }
+    const headers = preset.headers ?? {};
+    if (!validHeaders(headers)) {
+      throw new Error(`${label}: headers must be an object of at most 20 string values`);
+    }
+    if (preset.bus !== undefined && !buses.has(preset.bus)) {
+      throw new Error(`${label} names an unknown bus "${preset.bus}"`);
+    }
+    result.set(id, { ...preset, id, payload: preset.payload ?? null, headers });
+  }
+  return result;
+}
+
 /** Maps over items with a few in flight at a time. */
 async function mapLimit<T, R>(
   items: T[],
@@ -95,7 +144,10 @@ async function mapLimit<T, R>(
 
 export function createBoardApi(options: BoardOptions): BoardApi {
   const buses = resolveBuses(options.buses);
-  const readOnly = options.readOnly !== false;
+  const mode: BoardMode = options.mode ?? (options.readOnly === false ? 'full' : 'readonly');
+  if (mode !== 'readonly' && mode !== 'presets' && mode !== 'full') {
+    throw new Error(`createBoardApi: mode must be "readonly", "presets" or "full", not "${mode}"`);
+  }
   const hidePayloads = options.hidePayloads === true;
   const maxPayload = options.maxPayloadBytes ?? DEFAULT_MAX_PAYLOAD;
   const run = limiter(options.concurrency ?? 8);
@@ -108,7 +160,13 @@ export function createBoardApi(options: BoardOptions): BoardApi {
   }
   const limiterFor =
     rateLimit && createRateLimiter(rateLimit.max ?? 100, rateLimit.windowMs ?? 10_000);
-  const config: BoardConfig = { readOnly, hidePayloads, buses: [...buses.keys()] };
+  const presets = resolvePresets(options.presets ?? [], buses);
+  const config: BoardConfig = {
+    mode,
+    hidePayloads,
+    buses: [...buses.keys()],
+    presets: [...presets.values()],
+  };
 
   const first = (query: BoardRequest['query'], name: string): string | undefined => {
     const value = query?.[name];
@@ -447,6 +505,12 @@ export function createBoardApi(options: BoardOptions): BoardApi {
     throw new BoardError(404, 'not found');
   }
 
+  /** In `presets` mode only this write is allowed. */
+  const isPresetSend = (path: string, method: string): boolean => {
+    const parts = path.split('/').filter(Boolean);
+    return method === 'POST' && parts.length === 3 && parts[0] === 'presets' && parts[2] === 'send';
+  };
+
   const lower = (headers: BoardRequest['headers']): Record<string, string | undefined> => {
     const result: Record<string, string | undefined> = {};
     for (const [name, value] of Object.entries(headers ?? {})) {
@@ -528,6 +592,36 @@ export function createBoardApi(options: BoardOptions): BoardApi {
   async function writeRoute(request: BoardRequest, method: string): Promise<BoardResponse> {
     const segments = request.path.split('/').filter(Boolean).map(decodeURIComponent);
     const [head, topicName, section, subject, leaf] = segments;
+
+    // POST /presets/:id/send: store a preset exactly as configured (the body is ignored)
+    if (head === 'presets' && method === 'POST' && section === 'send' && segments.length === 3) {
+      const preset = topicName === undefined ? undefined : presets.get(topicName);
+      if (!preset) throw new BoardError(404, 'unknown preset');
+      const presetBusName = first(request.query, 'bus') ?? preset.bus ?? config.buses[0];
+      const presetBus = presetBusName === undefined ? undefined : buses.get(presetBusName);
+      if (!presetBus || (preset.bus !== undefined && preset.bus !== presetBusName)) {
+        throw new BoardError(404, 'unknown preset');
+      }
+      if (options.authorize && !(await options.authorize(request.raw, 'preset.send'))) {
+        throw new BoardError(403, 'forbidden');
+      }
+      const id = await presetBus.emit(preset.topicName, preset.eventName, preset.payload, {
+        headers: preset.headers,
+      });
+      try {
+        await options.onWrite?.({
+          action: 'preset.send',
+          bus: presetBusName as string,
+          topicName: preset.topicName,
+          detail: { preset: preset.id, eventName: preset.eventName, id },
+          request: request.raw,
+        });
+      } catch (error) {
+        options.onError?.(error);
+      }
+      return reply(200, { id } satisfies EmitResponse);
+    }
+
     if (head !== 'topics' || topicName === undefined) throw new BoardError(404, 'not found');
 
     const busName = first(request.query, 'bus') ?? config.buses[0] ?? 'default';
@@ -687,7 +781,10 @@ export function createBoardApi(options: BoardOptions): BoardApi {
         }
         const method = request.method.toUpperCase();
         if (method !== 'GET' && method !== 'HEAD') {
-          if (readOnly) return reply(403, { error: 'the board is read-only' });
+          if (mode === 'readonly') return reply(403, { error: 'the board is read-only' });
+          if (mode === 'presets' && !isPresetSend(request.path, method)) {
+            return reply(403, { error: 'this board only sends presets' });
+          }
           assertSameOrigin(request);
           return await run(() => writeRoute(request, method));
         }
