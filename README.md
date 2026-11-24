@@ -58,7 +58,7 @@ You need Redis 6.2 or newer with persistence on. The dashboard packages are inst
 
 - **Persistent.** Events live in Redis and survive restarts; you can inspect and replay them.
 - **Independent consumers.** Every consumer gets every event, and several instances of one consumer share the work.
-- **Reliable.** At-least-once delivery, retries with backoff, a dead-letter stream, recovery of events from crashed instances, optional deduplication.
+- **Reliable.** At-least-once delivery, retries with backoff, a dead-letter queue, recovery of events from crashed instances, optional deduplication.
 - **Small API.** `emit` and `on`, with topics, event names and consumer names you already know from Kafka.
 - **A dashboard** to browse events, find out why something is stuck, retry dead letters and replay history.
 

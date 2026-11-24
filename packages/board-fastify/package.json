@@ -59,7 +59,7 @@
     "@eventlane/board-ui": "workspace:*"
   },
   "peerDependencies": {
-    "@eventlane/core": "workspace:*",
+    "@eventlane/core": "workspace:^",
     "fastify": "^4.0.0 || ^5.0.0"
   },
   "devDependencies": {

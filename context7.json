@@ -6,7 +6,7 @@
   "excludeFolders": ["docs/.vitepress", "docs/public"],
   "rules": [
     "Delivery is at-least-once, so handlers must be idempotent",
-    "There are no wildcard event names, schema validation or Redis Cluster support",
+    "There are no wildcard event names or Redis Cluster support; payload validation with schemas is optional",
     "Use topicName, eventName and consumerName consistently; instanceName is generated"
   ]
 }

@@ -58,10 +58,10 @@
     "@eventlane/board-api": "workspace:*"
   },
   "peerDependencies": {
-    "@eventlane/board-express": "workspace:*",
-    "@eventlane/board-fastify": "workspace:*",
-    "@eventlane/core": "workspace:*",
-    "@eventlane/nestjs": "workspace:*",
+    "@eventlane/board-express": "workspace:^",
+    "@eventlane/board-fastify": "workspace:^",
+    "@eventlane/core": "workspace:^",
+    "@eventlane/nestjs": "workspace:^",
     "@nestjs/common": "^10.0.0 || ^11.0.0 || ^12.0.0",
     "@nestjs/core": "^10.0.0 || ^11.0.0 || ^12.0.0",
     "reflect-metadata": "^0.1.13 || ^0.2.0",

@@ -38,7 +38,7 @@ features:
     link: /dashboard/getting-started
     linkText: Dashboard
   - title: Why not BullMQ or Kafka?
-    details: BullMQ runs jobs, Kafka is heavy for a small system. EventLane fills the gap for domain events on Redis.
+    details: BullMQ runs jobs, Kafka is heavy for a small system. EventLane fills the gap for business events on Redis.
     link: /comparison
     linkText: Comparison
 ---

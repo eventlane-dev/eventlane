@@ -55,7 +55,7 @@
     "test": "vitest run"
   },
   "peerDependencies": {
-    "@eventlane/core": "workspace:*"
+    "@eventlane/core": "workspace:^"
   },
   "devDependencies": {
     "@eventlane/core": "workspace:*",
