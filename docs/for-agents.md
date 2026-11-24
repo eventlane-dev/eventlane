@@ -69,6 +69,7 @@ async welcome(payload: { id: number }, meta: EventMetadata) {}
 - In NestJS, pass `topicName` to `@OnLaneEvent` when the module lists several topics.
 - Topics keep about the latest 1 000 000 events by default; set `retention` per topic otherwise.
 - Types are optional: `new EventLaneBus<AppEvents>()` with `AppEvents = { users: { 'user.created': { id: number } } }` types `emit` and `on`; `TopicEmitter<UserEvents>` and `@OnLaneEvent<UserEvents>('user.created')` in NestJS. Compile time only. See [Typed events](core/typed-events.md) and [in NestJS](nestjs/typed-events.md).
+- Runtime validation is optional too: `schemas: { users: { 'user.created': <zod, valibot or any Standard Schema> } }` checks payloads on `emit` (rejects with `ValidationError`) and on receive (invalid events go to the dead letters without retries, `reason: 'validation'`). Without `schemas` nothing is validated. See [Validation](core/validation.md).
 - Do not invent features: there are no wildcard event names, no schema validation (types are not checked at runtime) and no Redis Cluster support.
 
 ## Where to look

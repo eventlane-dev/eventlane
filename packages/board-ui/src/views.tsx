@@ -1103,7 +1103,9 @@ export function DeadLettersTab({ topic }: { topic: string }) {
                       <Badge>{d.eventName}</Badge>
                     </td>
                     <td class="num">{d.attempt}</td>
-                    <td class="preview error-text">{d.error}</td>
+                    <td class="preview error-text">
+                      <DeadLetterReason letter={d} />
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -1195,7 +1197,9 @@ function DeadLetterDrawer({
               <dd>{d.attempt}</dd>
             </dl>
             <h3>Error</h3>
-            <p class="error-text">{d.error}</p>
+            <p class="error-text">
+              <DeadLetterReason letter={d} />
+            </p>
             {d.stack && <pre class="stack">{d.stack}</pre>}
             <h3>Payload</h3>
             {d.payloadHidden ? (
@@ -1232,5 +1236,15 @@ function DeadLetterDrawer({
         )}
       </Async>
     </Drawer>
+  );
+}
+
+/** The error of a dead letter; payloads that failed their schema are marked and shown without the prefix. */
+function DeadLetterReason({ letter }: { letter: Pick<DeadLetterSummary, 'error' | 'reason'> }) {
+  if (letter.reason !== 'validation') return <>{letter.error}</>;
+  return (
+    <>
+      <Badge tone="warn">invalid payload</Badge> {letter.error.replace(/^invalid payload: /, '')}
+    </>
   );
 }

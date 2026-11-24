@@ -1,6 +1,6 @@
 # Typed events in NestJS
 
-Describe the events of a topic once and the compiler checks the emitters and the handlers: event names, payloads and (for the general emitter) topic names. Typing is **optional** and compile-time only; nothing changes at runtime and nothing validates incoming data. The core side is explained in [Typed events](../core/typed-events.md); this page shows the NestJS parts.
+Describe the events of a topic once and the compiler checks the emitters and the handlers: event names, payloads and (for the general emitter) topic names. Typing is **optional** and compile-time only; nothing changes at runtime. For runtime checks add [schemas](../core/validation.md). The core side is explained in [Typed events](../core/typed-events.md); this page shows the NestJS parts.
 
 A runnable app is in [`examples/typed`](https://github.com/eventlane-dev/eventlane/tree/main/examples/typed).
 
@@ -138,5 +138,5 @@ Every part is independent. Type one emitter, one handler or one topic and leave 
 
 ## What it does not do
 
-- **No runtime validation.** The data in Redis can be older than your types or come from a service you do not control. Validate in the handler when that matters; a thrown error is [retried and then dead-lettered](../core/reliability.md#retries-and-backoff).
+- **No runtime validation by itself.** The data in Redis can be older than your types or come from a service you do not control. Pass `schemas` to `forRoot` to [validate payloads](../core/validation.md) on emit and receive.
 - **Inspection stays untyped.** `bus.read`, `stats`, `dlq` and the other [inspection methods](../core/inspecting.md) return payloads as `unknown`.

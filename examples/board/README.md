@@ -1,6 +1,6 @@
 # Example: the EventLane board on Express
 
-An Express app that generates demo traffic (users and orders, with failing handlers that produce retries and dead letters, and a consumer without instances that builds up lag) and mounts the dashboard on `/admin/events`. It redacts e-mail addresses in everything the board shows, allows writes (retry and delete dead letters, replay, remove consumers, test events) and logs them with `onWrite`.
+An Express app that generates demo traffic (users and orders, with failing handlers that produce retries and dead letters, a `user.created` schema that every ninth event violates, and a consumer without instances that builds up lag) and mounts the dashboard on `/admin/events`. It redacts e-mail addresses in everything the board shows, allows writes (retry and delete dead letters, replay, remove consumers, test events) and logs them with `onWrite`.
 
 ## Run
 

@@ -148,6 +148,7 @@ describe('dead-letter stream', () => {
       consumerName: 'doomed',
       attempt: 3,
       error: 'always broken',
+      reason: 'error',
       originalId: id,
     });
     expect(letter?.stack).toContain('always broken');

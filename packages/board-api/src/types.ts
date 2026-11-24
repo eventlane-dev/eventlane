@@ -182,6 +182,8 @@ export interface DeadLetterSummary {
   consumerName: string;
   attempt: number;
   error: string;
+  /** `validation` when the payload failed its schema, `error` otherwise. */
+  reason: 'error' | 'validation';
   originalId: string;
   failedAt: number;
   preview: string;

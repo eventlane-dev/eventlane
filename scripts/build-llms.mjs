@@ -18,6 +18,7 @@ const sections = [
       'core/api',
       'core/configuration',
       'core/typed-events',
+      'core/validation',
       'core/recipes',
       'core/patterns',
       'core/reliability',

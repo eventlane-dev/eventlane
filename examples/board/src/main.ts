@@ -1,11 +1,31 @@
 import { createBoard } from '@eventlane/board-express';
-import { EventLaneBus } from '@eventlane/core';
+import { EventLaneBus, type StandardSchemaV1 } from '@eventlane/core';
 import express from 'express';
+
+// With zod this is `z.object({ id: z.number(), email: z.string().email() })`; any Standard Schema works.
+const userCreated: StandardSchemaV1 = {
+  '~standard': {
+    version: 1,
+    vendor: 'demo',
+    validate: (value) => {
+      const { id, email } = (value ?? {}) as { id?: unknown; email?: unknown };
+      const issues = [
+        ...(typeof id === 'number' ? [] : [{ message: 'must be a number', path: ['id'] }]),
+        ...(typeof email === 'string' && email.includes('@')
+          ? []
+          : [{ message: 'must be an e-mail address', path: ['email'] }]),
+      ];
+      return issues.length === 0 ? { value } : { issues };
+    },
+  },
+};
 
 const bus = new EventLaneBus({
   redisUrl: process.env.REDIS_URL ?? 'redis://localhost:6390',
   prefix: 'demo',
   consumerName: 'notifications',
+  schemas: { users: { 'user.created': userCreated } },
+  validate: 'receive', // the demo emits an invalid event now and then, to show it in the board
   retry: { attempts: 3, backoff: { type: 'fixed', delay: 4000 } },
   topics: { users: { retention: { maxLen: 5000 } }, orders: { retention: { maxLen: 5000 } } },
 });
@@ -42,7 +62,7 @@ setInterval(async () => {
   const who = pick(names);
   await bus.emit('users', pick(['user.created', 'user.updated', 'user.created', 'user.deleted']), {
     id: n,
-    email: `${who}@example.com`,
+    email: n % 9 === 0 ? who : `${who}@example.com`, // not an e-mail address: fails the schema
     plan: pick(['free', 'pro']),
   });
   if (n % 2 === 0) {

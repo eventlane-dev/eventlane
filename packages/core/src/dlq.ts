@@ -25,6 +25,7 @@ export function toDeadLetter(topicName: string, [id, fields]: RawEntry): DeadLet
     consumerName: map.get('consumer') ?? '',
     attempt: Number(map.get('attempt') ?? 0),
     error: map.get('error') ?? '',
+    reason: map.get('reason') === 'validation' ? 'validation' : 'error',
     stack: map.get('stack') ?? '',
     originalId: map.get('originalId') ?? '',
     failedAt: Number(map.get('failedAt') ?? 0),

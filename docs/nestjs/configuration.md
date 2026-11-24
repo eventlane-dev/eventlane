@@ -4,7 +4,7 @@ Most options are the [core options](../core/configuration.md); this page lists w
 
 ## `EventLaneModule.forRoot(options)` / `forRootAsync(options)`
 
-`forRoot` takes the **same options as `new EventLaneBus(...)`** (see [core configuration](../core/configuration.md)): the Redis connection (`redisUrl` or `redis`, exactly one), `prefix`, `retry`, `claimIdleMs`, `topics` (retention), `logger` and the rest. Two differences (and one default: `logger` writes to the Nest `Logger` under the context `EventLane`, with `debug` silent):
+`forRoot` takes the **same options as `new EventLaneBus(...)`** (see [core configuration](../core/configuration.md)): the Redis connection (`redisUrl` or `redis`, exactly one), `prefix`, `retry`, `claimIdleMs`, `topics` (retention), `schemas` and `validate` ([validation](../core/validation.md)), `logger` and the rest. Two differences (and one default: `logger` writes to the Nest `Logger` under the context `EventLane`, with `debug` silent):
 
 | Core option | In `forRoot` | Why |
 |---|---|---|

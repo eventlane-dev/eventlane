@@ -127,6 +127,21 @@ await bus.emit('users', 'user.created', { id: 1, email: 'a@b.com' });   // paylo
 
 How to declare `AppEvents`, adopt it per topic and what it does not do: [Typed events](typed-events.md).
 
+## Validation (optional)
+
+Give events a schema (zod, valibot, ArkType or any [Standard Schema](https://standardschema.dev)) and payloads are checked at runtime, on `emit` and on receive. Without `schemas` nothing is validated.
+
+```ts
+const bus = new EventLaneBus({
+  redisUrl,
+  consumerName: 'notifications',
+  schemas: { users: { 'user.created': z.object({ id: z.number(), email: z.string().email() }) } },
+});
+await bus.emit('users', 'user.created', { id: 1, email: 'nope' });   // rejects with ValidationError
+```
+
+An invalid event that is received goes to the dead letters without retries (`reason: 'validation'`). Options (`schemas`, `validate`, `onInvalid`), `ValidationError` and the details: [Validation](validation.md).
+
 ## Inspecting (see [Inspecting](inspecting.md))
 
 ```ts

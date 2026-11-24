@@ -53,7 +53,7 @@ One event and where it stands for every consumer: `{ event, consumers }`. `event
 
 ### `GET /topics/:topic/dlq`
 
-`{ entries: DeadLetterSummary[], next, total }`, newest first. An entry is `{ id, eventName, consumerName, attempt, error, originalId, failedAt, preview, size, payloadHidden }`; `total` is all dead letters of the topic. Query: `limit`, `cursor`, `consumer`, `eventName`, `reverse` (`false` for oldest first).
+`{ entries: DeadLetterSummary[], next, total }`, newest first. An entry is `{ id, eventName, consumerName, attempt, error, reason, originalId, failedAt, preview, size, payloadHidden }`; `reason` is `"validation"` when the payload failed its [schema](../core/validation.md) and `"error"` otherwise. `total` is all dead letters of the topic. Query: `limit`, `cursor`, `consumer`, `eventName`, `reverse` (`false` for oldest first).
 
 ### `GET /topics/:topic/dlq/:id`
 

@@ -457,3 +457,49 @@ describe('shutdown', () => {
     await expect(emitter.emit('users', 'user.created')).rejects.toThrow(/closed/);
   });
 });
+
+describe('validation', () => {
+  it('forRoot schemas validate emit and receive for module handlers', async () => {
+    const seen: unknown[] = [];
+    const id = {
+      '~standard': {
+        version: 1 as const,
+        vendor: 'test',
+        validate: (value: unknown) =>
+          typeof (value as { id?: unknown })?.id === 'number'
+            ? { value }
+            : { issues: [{ message: 'id must be a number' }] },
+      },
+    };
+
+    @Injectable()
+    class Handler {
+      @OnLaneEvent('user.created')
+      created(payload: unknown) {
+        seen.push(payload);
+      }
+    }
+
+    @Module({
+      imports: [
+        EventLaneModule.forFeature({ consumerName: 'notifications', topicNames: ['users'] }),
+      ],
+      providers: [Handler],
+    })
+    class UsersModule {}
+
+    const app = await createApp({
+      imports: [
+        EventLaneModule.forRoot(rootOptions({ schemas: { users: { 'user.created': id } } })),
+        UsersModule,
+      ],
+    });
+    const emitter = app.get(EventLaneEmitter);
+    await expect(emitter.emit('users', 'user.created', { id: 'x' })).rejects.toThrow(
+      /id must be a number/,
+    );
+    await emitter.emit('users', 'user.created', { id: 1 });
+    await waitFor(() => seen.length === 1);
+    expect(seen).toEqual([{ id: 1 }]);
+  });
+});

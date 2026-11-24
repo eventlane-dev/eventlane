@@ -13,7 +13,7 @@ What each screen of the dashboard shows and what its actions do. To mount it fir
 - **Topic, Consumers**: each consumer's instances (with how long each has been idle), pending, lag and retrying counts.
   - An instance that holds events and has been idle for over a minute is flagged **probably dead**; the other instances claim its events after `claimIdleMs` (60 s by default).
   - Click a consumer to list its pending events (who holds them, for how long, how many deliveries; held longer than a minute is highlighted) and its retrying events (attempt, next retry). Both load 50 at a time.
-- **Topic, Dead letters**: failed events with the consumer, the number of attempts and the error; filter by consumer or event name. Click one for the stack trace, payload and headers.
+- **Topic, Dead letters**: failed events with the consumer, the number of attempts and the error; filter by consumer or event name. Events that failed their [schema](../core/validation.md) are marked **invalid payload**; they are not retried, and their error lists what is wrong. Click one for the stack trace, payload and headers.
 
 With writes enabled (see [Making changes](#making-changes)) the same screens also let you change things.
 

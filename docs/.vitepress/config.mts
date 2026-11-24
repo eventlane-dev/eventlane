@@ -51,6 +51,7 @@ export default defineConfig({
             { text: 'Core API', link: '/core/api' },
             { text: 'Configuration', link: '/core/configuration' },
             { text: 'Typed events', link: '/core/typed-events' },
+            { text: 'Validation', link: '/core/validation' },
             { text: 'Recipes', link: '/core/recipes' },
             { text: 'Patterns', link: '/core/patterns' },
           ],

@@ -1,4 +1,5 @@
 import type { Redis } from 'ioredis';
+import { formatIssues } from './errors';
 import {
   type DecodedEvent,
   decodeEvent,
@@ -12,6 +13,7 @@ import {
 import { backoffDelay, type ResolvedRetry, resolveRetry } from './retry';
 import { DEAD_LETTER, RETRY_CLAIM, RETRY_SCHEDULE, runScript } from './scripts';
 import type { EventMetadata, Handler, Logger, RetryPolicy } from './types';
+import type { Validator } from './validation';
 
 export interface Subscription {
   eventName: string | undefined;
@@ -35,6 +37,7 @@ export interface LoopContext {
   retryPollMs: number;
   dedupTtlSeconds: number;
   dlqMaxLen: number;
+  validator: Validator;
   logger: Logger;
 }
 
@@ -371,6 +374,24 @@ export class ConsumerLoop {
       return;
     }
 
+    const { validator } = this.ctx;
+    if (validator.checksReceive(this.topicName, delivery.eventName)) {
+      const outcome = await validator.check(this.topicName, delivery.eventName, payload);
+      if (!outcome.ok) {
+        const message = `invalid payload: ${formatIssues(outcome.issues)}`;
+        if (validator.onInvalid === 'drop') {
+          this.logger.warn(
+            `[${this.label}] ${delivery.eventName} (${delivery.id}) dropped, ${message}`,
+          );
+          await this.complete(delivery);
+        } else {
+          await this.deadLetter(delivery, message, '', 'validation');
+        }
+        return;
+      }
+      payload = outcome.value;
+    }
+
     const policy = resolveRetry(this.ctx.retry, matching.find((s) => s.retry !== undefined)?.retry);
     if (delivery.attempt > policy.attempts) {
       await this.deadLetter(
@@ -493,7 +514,12 @@ export class ConsumerLoop {
     this.logger.debug(`[${this.label}] retry of ${delivery.id} in ${delayMs}ms`);
   }
 
-  private async deadLetter(delivery: Delivery, error: string, stack = ''): Promise<void> {
+  private async deadLetter(
+    delivery: Delivery,
+    error: string,
+    stack = '',
+    reason: 'error' | 'validation' = 'error',
+  ): Promise<void> {
     await runScript(
       this.ctx.command,
       DEAD_LETTER,
@@ -517,6 +543,8 @@ export class ConsumerLoop {
         error,
         'stack',
         stack,
+        'reason',
+        reason,
         'originalId',
         delivery.id,
         'failedAt',

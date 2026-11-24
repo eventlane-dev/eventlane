@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { EventLaneBus, type EventMetadata, type TopicEmitter } from '../src';
+import { EventLaneBus, type EventMetadata, type StandardSchemaV1, type TopicEmitter } from '../src';
 
 // These checks run in `pnpm typecheck`: `@ts-expect-error` fails the build when a line stops being
 // an error, so the test below only proves that the file is part of the suite.
@@ -98,3 +98,21 @@ describe('typed events', () => {
     expect(typeof EventLaneBus).toBe('function');
   });
 });
+
+export function schemasDoNotNarrowTheEventMap(schema: StandardSchemaV1<unknown, { id: number }>) {
+  // without a type argument, `schemas` must not turn into the event map: other names still compile
+  const bus = new EventLaneBus({
+    redisUrl: 'redis://x',
+    schemas: { users: { 'user.created': schema } },
+  });
+  bus.on('users', 'user.updated', () => {});
+  return bus.emit('orders', 'order.placed', { total: 1 });
+}
+
+export function schemasMustMatchTheEventMap(schema: StandardSchemaV1<unknown, { id: number }>) {
+  return new EventLaneBus<{ users: { 'user.created': { id: string } } }>({
+    redisUrl: 'redis://x',
+    // @ts-expect-error the schema produces { id: number }, the map says { id: string }
+    schemas: { users: { 'user.created': schema } },
+  });
+}

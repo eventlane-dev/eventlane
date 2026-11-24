@@ -47,6 +47,9 @@ EventLane duplicates the connection for blocking reads, so one setting configure
 | `shutdownTimeoutMs` | `number` | `10000` | Max wait for in-flight handlers in `close()`. |
 | `retention` | `{ maxLen?, maxAgeMs? }` \| `false` | `{ maxLen: 1000000 }` | Retention of topics that set none of their own. `false` keeps everything. |
 | `topics` | `Record<topicName, TopicOptions>` | `{}` | Per-topic settings (below). |
+| `schemas` | `{ [topicName]: { [eventName]: StandardSchema } }` | none | Payload schemas (zod, valibot, ArkType, ...), see [Validation](validation.md). |
+| `validate` | `'both'` \| `'emit'` \| `'receive'` \| `false` | `'both'` | Where `schemas` are checked. |
+| `onInvalid` | `'dead-letter'` \| `'drop'` | `'dead-letter'` | What happens to a received event that fails its schema: moved to the dead letters without retries, or acknowledged and skipped. |
 | `logger` | `{ debug, info, warn, error }` | silent | Where the library logs, including a warning at startup when two handlers of one consumer match the same event. |
 
 ## Per-topic options (`topics[topicName]`)

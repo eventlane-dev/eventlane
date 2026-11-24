@@ -1,6 +1,6 @@
 export { EventLaneBus, TopicEmitter } from './bus';
 export { DeadLetters } from './dlq';
-export { EventLaneError } from './errors';
+export { EventLaneError, ValidationError } from './errors';
 export type {
   ConsumerEventState,
   ConsumerEventStatus,
@@ -16,10 +16,13 @@ export type {
   EventMetadata,
   EventName,
   EventPayload,
+  EventSchemas,
   EventStatus,
   Handler,
+  InferEvents,
   InstanceStats,
   Logger,
+  OnInvalid,
   PendingEvent,
   PendingOptions,
   ReadEvent,
@@ -31,6 +34,7 @@ export type {
   RetriesOptions,
   RetryingEvent,
   RetryPolicy,
+  StandardSchemaV1,
   StatsOptions,
   StreamPosition,
   SubscribeOptions,
@@ -38,4 +42,6 @@ export type {
   TopicOptions,
   TopicStats,
   Unsubscribe,
+  ValidationIssue,
+  ValidationMode,
 } from './types';

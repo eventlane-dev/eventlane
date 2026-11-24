@@ -207,6 +207,7 @@ export function createBoardApi(options: BoardOptions): BoardApi {
       consumerName: letter.consumerName,
       attempt: letter.attempt,
       error: letter.error,
+      reason: letter.reason,
       originalId: letter.originalId,
       failedAt: letter.failedAt,
       preview: v.preview,

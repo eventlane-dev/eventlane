@@ -44,7 +44,8 @@ export type Retention =
       maxAgeMs?: number;
     };
 
-interface BaseOptions {
+// biome-ignore lint/suspicious/noExplicitAny: untyped by default
+interface BaseOptions<E = any> {
   /** Default consumer for subscriptions that do not set their own. */
   consumerName?: string;
   /** Unique per running instance of a consumer. Default: `hostname-pid-random`. */
@@ -76,17 +77,79 @@ interface BaseOptions {
    * keeps everything, which grows the topic until Redis is full.
    */
   retention?: Retention;
+  /**
+   * Payload schemas, `topicName` to `eventName` to a Standard Schema (zod, valibot, ArkType, ...).
+   * Events without a schema are not validated.
+   */
+  schemas?: EventSchemas<NoInfer_<E>>;
+  /** Where `schemas` are checked: `emit`, on receive, or `both`. Default: `both`. `false` disables it. */
+  validate?: ValidationMode;
+  /**
+   * What happens to a received event that fails its schema: `dead-letter` (default) moves it to the
+   * dead letters without retries, `drop` acknowledges and skips it.
+   */
+  onInvalid?: OnInvalid;
   /** Default: silent. */
   logger?: Logger;
 }
 
 /** Provide exactly one of `redisUrl` or `redis`. */
-export type EventLaneOptions = BaseOptions &
+// biome-ignore lint/suspicious/noExplicitAny: untyped by default
+export type EventLaneOptions<E = any> = BaseOptions<E> &
   (
     | { redisUrl: string; redis?: undefined }
     // an existing ioredis client is reused and never closed by EventLane
     | { redis: RedisConnection | Redis; redisUrl?: undefined }
   );
+
+/** Where schemas are checked, see `validate`. */
+export type ValidationMode = 'both' | 'emit' | 'receive' | false;
+
+/** What to do with a received event that fails its schema, see `onInvalid`. */
+export type OnInvalid = 'dead-letter' | 'drop';
+
+/**
+ * The Standard Schema interface (https://standardschema.dev): implemented by zod, valibot, ArkType
+ * and others. Declared here so EventLane depends on none of them.
+ */
+// biome-ignore lint/suspicious/noExplicitAny: input type is irrelevant here
+export interface StandardSchemaV1<Input = any, Output = Input> {
+  readonly '~standard': {
+    readonly version: 1;
+    readonly vendor: string;
+    readonly validate: (
+      value: unknown,
+    ) =>
+      | { readonly value: Output; readonly issues?: undefined }
+      | { readonly issues: ReadonlyArray<ValidationIssue> }
+      | Promise<
+          | { readonly value: Output; readonly issues?: undefined }
+          | { readonly issues: ReadonlyArray<ValidationIssue> }
+        >;
+    readonly types?: { readonly input: Input; readonly output: Output } | undefined;
+  };
+}
+
+/** One problem found by a schema: a message and where in the payload. */
+export interface ValidationIssue {
+  readonly message: string;
+  readonly path?: ReadonlyArray<PropertyKey | { readonly key: PropertyKey }> | undefined;
+}
+
+/** `schemas` option: the schema of each event, `topicName` to `eventName`. Output must match the event map. */
+export type EventSchemas<E> = {
+  // biome-ignore lint/suspicious/noExplicitAny: input type is irrelevant here
+  [T in keyof E]?: { [N in keyof E[T]]?: StandardSchemaV1<any, E[T][N]> };
+};
+
+/** Keeps the compiler from inferring `E` out of `schemas`: types come from the type argument only. */
+type NoInfer_<T> = [T][T extends unknown ? 0 : never];
+
+/** Builds an event map from `schemas`: each payload type is the schema's output. */
+export type InferEvents<S> = {
+  // biome-ignore lint/suspicious/noExplicitAny: input type is irrelevant here
+  [T in keyof S]: { [N in keyof S[T]]: S[T][N] extends StandardSchemaV1<any, infer O> ? O : never };
+};
 
 export interface EventMetadata {
   /** Event id (the Redis stream entry id), e.g. `1762725960000-0`. Stable across retries. */
@@ -171,6 +234,8 @@ export interface DeadLetter {
   consumerName: string;
   attempt: number;
   error: string;
+  /** `validation` when the payload failed its schema, `error` for everything else. */
+  reason: 'error' | 'validation';
   stack: string;
   /** Id of the original event. */
   originalId: string;

@@ -250,6 +250,7 @@ describe('views', () => {
         consumerName: 'notifications',
         attempt: 3,
         error: 'mail down',
+        reason: 'error',
         originalId: '1-1',
         failedAt: Date.now(),
         preview: '{}',
@@ -267,6 +268,22 @@ describe('views', () => {
     await waitFor(() => expect(screen.getByText('mail down')).toBeTruthy());
     expect(screen.queryAllByRole('checkbox')).toHaveLength(0);
     expect(screen.queryByRole('button', { name: /Retry/ })).toBeNull();
+  });
+
+  it('marks dead letters that failed their schema and drops the redundant prefix', async () => {
+    const entry = deadLetters.entries[0];
+    stubApi({
+      '/dlq': {
+        ...deadLetters,
+        entries: [
+          { ...entry, reason: 'validation', error: 'invalid payload: email: Invalid email' },
+        ],
+      },
+    });
+    render(withSettings(settings(), <DeadLettersTab topic="users" />));
+    await waitFor(() => expect(screen.getByText('invalid payload')).toBeTruthy());
+    expect(screen.getByText(/email: Invalid email/)).toBeTruthy();
+    expect(screen.queryByText(/invalid payload: email/)).toBeNull();
   });
 
   it('with writes enabled the dead letters can be selected and the actions follow the selection', async () => {

@@ -34,6 +34,7 @@ import type {
   TopicStats,
   Unsubscribe,
 } from './types';
+import { Validator } from './validation';
 
 const isRedisClient = (value: unknown): value is Redis =>
   typeof value === 'object' &&
@@ -78,6 +79,7 @@ export class EventLaneBus<E extends EventMap<E> = any> {
   private readonly defaultRetention: Retention | undefined;
   private readonly operations: Operations;
   private readonly logger: Logger;
+  private readonly validator: Validator;
   private readonly loops = new Map<string, ConsumerLoop>();
   private started = false;
   private closed = false;
@@ -85,7 +87,7 @@ export class EventLaneBus<E extends EventMap<E> = any> {
   /** Inspect and re-deliver events that exhausted their retries. */
   readonly dlq: DeadLetters;
 
-  constructor(options: EventLaneOptions) {
+  constructor(options: EventLaneOptions<E>) {
     const hasUrl = options.redisUrl !== undefined;
     const hasRedis = options.redis !== undefined;
     if (hasUrl === hasRedis) {
@@ -116,6 +118,7 @@ export class EventLaneBus<E extends EventMap<E> = any> {
       this.topicOptions.set(topicName, topic ?? {});
     }
     this.logger = options.logger ?? silentLogger;
+    this.validator = new Validator(options.schemas, options.validate, options.onInvalid);
 
     if (typeof options.redisUrl === 'string') {
       if (options.redisUrl === '') throw new EventLaneError('"redisUrl" must not be empty');
@@ -143,12 +146,16 @@ export class EventLaneBus<E extends EventMap<E> = any> {
     eventName: N,
     ...args: EmitArgs<EventPayload<E, T, N>>
   ): Promise<string> {
-    const [payload, options = {}] = args as [unknown?, EmitOptions?];
+    const [rawPayload, options = {}] = args as [unknown?, EmitOptions?];
     this.assertOpen();
     assertName('topicName', topicName);
     if (typeof eventName !== 'string' || eventName === '') {
       throw new EventLaneError('eventName must be a non-empty string');
     }
+    // the schema's output is what gets stored (defaults and transforms apply)
+    const payload = this.validator.checksEmit(topicName, eventName)
+      ? await this.validator.parse(topicName, eventName, rawPayload)
+      : rawPayload;
     const key = streamKey(this.prefix, topicName);
     const fields = encodeEvent(eventName, payload, options.headers);
     const trim = trimArguments(
@@ -367,6 +374,7 @@ export class EventLaneBus<E extends EventMap<E> = any> {
             retryPollMs: this.retryPollMs,
             dedupTtlSeconds: this.dedupTtlSeconds,
             dlqMaxLen: this.dlqMaxLen,
+            validator: this.validator,
             logger: this.logger,
           },
           topicName,

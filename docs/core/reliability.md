@@ -39,7 +39,7 @@ A retrying event does not block later events: they keep flowing while it waits f
 
 ## Dead letters
 
-After the last failed attempt the event is written to `events:<topicName>:dlq` with the consumer, the attempt count, the error message and stack, and removed from the consumer's pending list, in one atomic step. It is not retried automatically. Events that cannot be decoded (invalid JSON, missing event name) go there immediately.
+After the last failed attempt the event is written to `events:<topicName>:dlq` with the consumer, the attempt count, the error message and stack, and removed from the consumer's pending list, in one atomic step. It is not retried automatically. Events that cannot be decoded (invalid JSON, missing event name) go there immediately, and so do events whose payload fails its [schema](validation.md) (unless `onInvalid` is `'drop'`).
 
 ```ts
 const entries = await bus.dlq.list('users', { consumerName: 'notifications', count: 50 });
@@ -48,7 +48,7 @@ await bus.dlq.retryMany('users', { consumerName: 'notifications' });   // all of
 await bus.dlq.purge('users', { consumerName: 'notifications' });   // or purge('users') for all
 ```
 
-- `dlq.list(topicName, { consumerName?, eventName?, count?, reverse?, after?, maxScan? })` returns `DeadLetter` objects, oldest first (newest first with `reverse`): `id`, `eventName`, `payload`, `headers`, `consumerName`, `attempt`, `error`, `stack`, `originalId`, `failedAt`. `count` defaults to 100 and is at most 1000.
+- `dlq.list(topicName, { consumerName?, eventName?, count?, reverse?, after?, maxScan? })` returns `DeadLetter` objects, oldest first (newest first with `reverse`): `id`, `eventName`, `payload`, `headers`, `consumerName`, `attempt`, `error`, `reason`, `stack`, `originalId`, `failedAt`. `reason` is `'validation'` when the payload failed its [schema](validation.md) and `'error'` for everything else. `count` defaults to 100 and is at most 1000.
 - `dlq.get(topicName, id)` returns one dead letter, or `undefined`.
 - `dlq.page(topicName, filter)` is `list` plus the cursor of the next page: `{ entries, next }`. Pass `next` as `after` for the following page; `next` is `undefined` at the end. Filtering by consumer or event name is bounded by `maxScan` (default 10000) like [`readPage`](inspecting.md#paging-and-filtering): a page can be short while `next` is set.
 - `dlq.count(topicName, { consumerName?, eventName? })` returns how many dead letters there are. Without a filter it is a single `XLEN`.

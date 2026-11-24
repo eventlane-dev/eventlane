@@ -1,0 +1,19 @@
+{
+  "name": "@eventlane/example-validation",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Payload validation with zod schemas: invalid events are rejected on emit and sent to the dead letters on receive",
+  "scripts": {
+    "start": "tsx src/main.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@eventlane/core": "workspace:*",
+    "ioredis": "^6.0.0",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.23.15"
+  }
+}

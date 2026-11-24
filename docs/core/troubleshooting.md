@@ -51,7 +51,7 @@ Order is kept only with one instance of the consumer, `concurrency: 1` and no fa
 
 ## An event ended up in the dead letters
 
-It failed all its attempts, or it could not be decoded. Read the error and stack in the dashboard or with `bus.dlq.list(...)`, fix the cause, then retry it: `bus.dlq.retry(topic, id)` or `retryMany`. See the [recipe](recipes.md#find-out-why-something-failed-and-retry-it).
+It failed all its attempts, it could not be decoded, or its payload did not match its [schema](validation.md) (`reason: 'validation'`, the error starts with `invalid payload:`; such an event is not retried, and retrying it fails again until the schema or the data is fixed). Read the error and stack in the dashboard or with `bus.dlq.list(...)`, fix the cause, then retry it: `bus.dlq.retry(topic, id)` or `retryMany`. See the [recipe](recipes.md#find-out-why-something-failed-and-retry-it).
 
 ## Error: `NOGROUP`
 

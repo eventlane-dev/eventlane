@@ -2,7 +2,7 @@
 
 By default a payload is `any` and event names are free strings, so a typo in `'user.created'` or a missing field shows up at runtime, if at all. Describe your events once and the compiler checks every `emit` and `on`: the topic name, the event name and the payload.
 
-Typing is **optional** and exists only at compile time. Nothing changes at runtime, and nothing validates the data that arrives (see [What it does not do](#what-it-does-not-do)). Using NestJS? See [Typed events in NestJS](../nestjs/typed-events.md).
+Typing is **optional** and exists only at compile time. Nothing changes at runtime, and nothing validates the data that arrives unless you add [schemas](validation.md) (see [What it does not do](#what-it-does-not-do)). Using NestJS? See [Typed events in NestJS](../nestjs/typed-events.md).
 
 ## 1. Describe the events
 
@@ -102,16 +102,7 @@ Change a payload in one place and the compiler lists every emit and handler to u
 
 ## What it does not do
 
-- **No runtime validation.** A payload from another service, an older version or a script can differ from the type. Validate in the handler if that matters:
-
-  ```ts
-  bus.on('orders', 'order.placed', async (order) => {
-    if (typeof order.total !== 'number') throw new Error('invalid order.placed'); // retried, then dead letters
-    // ...
-  });
-  ```
-
-  A schema library (zod, valibot, ...) fits the same place.
+- **No runtime validation by itself.** A payload from another service, an older version or a script can differ from the type. Add [schemas](validation.md) to check payloads when they are emitted and received; the types can then be inferred from the schemas (`InferEvents`).
 - **Only declared names.** A typed bus refuses topic and event names you did not declare. For dynamic names use an untyped `EventLaneBus` (or a cast at that one call).
 - **Inspection stays untyped.** `read`, `readPage`, `stats`, `dlq` and the other [inspection methods](inspecting.md) take any `topicName` and return payloads as `unknown`, because they show what is stored, which can be older than your types.
 

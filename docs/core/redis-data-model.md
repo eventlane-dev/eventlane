@@ -27,7 +27,7 @@ The timestamp comes from the entry id (`<ms>-<seq>`).
 
 ## Dead-letter entry fields
 
-`event`, `payload`, `headers`, `consumer` (the `consumerName`), `attempt`, `error` (message), `stack`, `originalId`, `failedAt`.
+`event`, `payload`, `headers`, `consumer` (the `consumerName`), `attempt`, `error` (message), `stack`, `originalId`, `failedAt`, and `reason`: `validation` when the payload failed its [schema](validation.md), `error` otherwise (entries written by older versions have no `reason` and count as `error`).
 
 ## Useful commands
 

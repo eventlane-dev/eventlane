@@ -279,6 +279,7 @@ describe('dead letters', () => {
     expect(body.entries[0]).toMatchObject({
       eventName: 'user.created',
       attempt: expect.any(Number),
+      reason: 'error',
     });
     expect(body.entries[0].stack).toBeUndefined();
     expect(body.entries[0].payload).toBeUndefined();
