@@ -9,8 +9,12 @@ import { Operations, resolveRetention, trimArguments } from './operations';
 import { DEFAULT_RETRY, type ResolvedRetry, resolveRetry } from './retry';
 import { EMIT_IDEMPOTENT, runScript } from './scripts';
 import type {
+  EmitArgs,
   EmitOptions,
   EventLaneOptions,
+  EventMap,
+  EventName,
+  EventPayload,
   EventStatus,
   Handler,
   Logger,
@@ -25,6 +29,7 @@ import type {
   RetryingEvent,
   StatsOptions,
   SubscribeOptions,
+  TopicName,
   TopicOptions,
   TopicStats,
   Unsubscribe,
@@ -49,7 +54,12 @@ function positiveInt(name: string, value: number | undefined, fallback: number, 
   return resolved;
 }
 
-export class EventLaneBus {
+/**
+ * The event bus. The type argument is optional: describe your events (`topicName` to `eventName` to
+ * payload type) to get checked `emit` and `on`. Without it everything is untyped.
+ */
+// biome-ignore lint/suspicious/noExplicitAny: untyped by default
+export class EventLaneBus<E extends EventMap<E> = any> {
   private readonly command: Redis;
   private readonly ownsCommand: boolean;
   private readonly prefix: string;
@@ -128,12 +138,12 @@ export class EventLaneBus {
   }
 
   /** Stores an event in the topic and returns its id (the Redis stream entry id). */
-  async emit(
-    topicName: string,
-    eventName: string,
-    payload?: unknown,
-    options: EmitOptions = {},
+  async emit<T extends TopicName<E>, N extends EventName<E, T>>(
+    topicName: T,
+    eventName: N,
+    ...args: EmitArgs<EventPayload<E, T, N>>
   ): Promise<string> {
+    const [payload, options = {}] = args as [unknown?, EmitOptions?];
     this.assertOpen();
     assertName('topicName', topicName);
     if (typeof eventName !== 'string' || eventName === '') {
@@ -245,16 +255,20 @@ export class EventLaneBus {
   }
 
   /** A `TopicEmitter` bound to one topic. */
-  emitter(topicName: string): TopicEmitter {
+  emitter<T extends TopicName<E>>(topicName: T): TopicEmitter<E[T]> {
     assertName('topicName', topicName);
-    return new TopicEmitter(this, topicName);
+    return new TopicEmitter<E[T]>(this, topicName);
   }
 
-  on(topics: string | string[], handler: Handler, options?: SubscribeOptions): Unsubscribe;
-  on(
-    topics: string | string[],
-    eventName: string,
-    handler: Handler,
+  on<T extends TopicName<E>>(
+    topics: T | T[],
+    handler: Handler<EventPayload<E, T, EventName<E, T>>>,
+    options?: SubscribeOptions,
+  ): Unsubscribe;
+  on<T extends TopicName<E>, N extends EventName<E, T>>(
+    topics: T | T[],
+    eventName: N,
+    handler: Handler<EventPayload<E, T, N>>,
     options?: SubscribeOptions,
   ): Unsubscribe;
   on(
@@ -400,19 +414,35 @@ export class EventLaneBus {
   }
 }
 
-/** Emitter bound to one topic: `emit(eventName, payload)` without repeating the topicName. */
-export class TopicEmitter {
+/**
+ * Emitter bound to one topic: `emit(eventName, payload)` without repeating the topicName. The type
+ * argument is optional: the events of this topic, `eventName` to payload type.
+ */
+// biome-ignore lint/suspicious/noExplicitAny: untyped by default
+export class TopicEmitter<Events extends Record<string, any> = any> {
   constructor(
-    private readonly bus: EventLaneBus,
+    // biome-ignore lint/suspicious/noExplicitAny: the bus is used untyped here
+    private readonly bus: EventLaneBus<any>,
     readonly topicName: string,
   ) {}
 
-  emit(eventName: string, payload?: unknown, options?: EmitOptions): Promise<string> {
-    return this.bus.emit(this.topicName, eventName, payload, options);
+  emit<N extends Extract<keyof Events, string>>(
+    eventName: N,
+    ...args: EmitArgs<Events[N]>
+  ): Promise<string> {
+    // biome-ignore lint/suspicious/noExplicitAny: the bus is used untyped here
+    return this.bus.emit(this.topicName, eventName, ...(args as EmitArgs<any>));
   }
 
-  on(handler: Handler, options?: SubscribeOptions): Unsubscribe;
-  on(eventName: string, handler: Handler, options?: SubscribeOptions): Unsubscribe;
+  on(
+    handler: Handler<Events[Extract<keyof Events, string>]>,
+    options?: SubscribeOptions,
+  ): Unsubscribe;
+  on<N extends Extract<keyof Events, string>>(
+    eventName: N,
+    handler: Handler<Events[N]>,
+    options?: SubscribeOptions,
+  ): Unsubscribe;
   on(
     second: string | Handler,
     third?: Handler | SubscribeOptions,

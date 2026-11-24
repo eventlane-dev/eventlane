@@ -137,6 +137,10 @@ Rules:
 - Handlers are discovered at application bootstrap (`onApplicationBootstrap`), and reading starts after every module has initialized. A problem (unresolvable topic or consumer, conflicting consumers, a handler on a request-scoped or transient provider) fails the bootstrap with a message naming the `Class.method`.
 - Handlers must live in singleton providers (or controllers). They run with the provider as `this`, so injected dependencies work.
 
+## Typed events (optional)
+
+`TopicEmitter<UserEvents>`, `EventLaneEmitter<AppEvents>` and `@OnLaneEvent<UserEvents>('user.created')` check event names and payloads at compile time; untyped code keeps working. Setup, examples and limits: [Typed events in NestJS](typed-events.md).
+
 ## Monolith example: two consumers on one topic
 
 ```ts

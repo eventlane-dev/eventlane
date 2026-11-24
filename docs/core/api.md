@@ -68,7 +68,7 @@ await users.emit('user.created', { id: 1 }); // no topicName argument
 users.on('user.created', handler);
 ```
 
-This `TopicEmitter` is the same type that `@InjectLaneEmitter('users')` injects in [NestJS](../nestjs/guide.md).
+This `TopicEmitter` is the same type that `@InjectLaneEmitter('users')` injects in [NestJS](../nestjs/guide.md). It can be typed too: see [Typed events](typed-events.md).
 
 ## Listening
 
@@ -115,6 +115,17 @@ interface EventMetadata {
 | `concurrency` | `1` | Max handlers running at once. Above 1 handlers overlap, so events are not handled in order (see [Ordering](reliability.md#ordering)). |
 | `dedup` | `false` | Skip events this consumer already processed successfully. See [Deduplication](reliability.md#deduplication). |
 | `startFrom` | `'$'` | Where a **new** consumer starts: `'$'` (only new events) or `'0'` (full history). Ignored if the consumer already exists. |
+
+## Typed events (optional)
+
+Describe your events once and `emit`, `on` and `emitter` are checked at compile time (topic names, event names and payloads); without it everything stays untyped.
+
+```ts
+const bus = new EventLaneBus<AppEvents>({ redisUrl, consumerName: 'notifications' });
+await bus.emit('users', 'user.created', { id: 1, email: 'a@b.com' });   // payload checked
+```
+
+How to declare `AppEvents`, adopt it per topic and what it does not do: [Typed events](typed-events.md).
 
 ## Inspecting (see [Inspecting](inspecting.md))
 

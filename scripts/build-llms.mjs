@@ -17,6 +17,7 @@ const sections = [
     [
       'core/api',
       'core/configuration',
+      'core/typed-events',
       'core/recipes',
       'core/patterns',
       'core/reliability',
@@ -27,7 +28,10 @@ const sections = [
       'core/redis-data-model',
     ],
   ],
-  ['NestJS', ['nestjs/getting-started', 'nestjs/guide', 'nestjs/configuration']],
+  [
+    'NestJS',
+    ['nestjs/getting-started', 'nestjs/guide', 'nestjs/typed-events', 'nestjs/configuration'],
+  ],
   [
     'Dashboard',
     [

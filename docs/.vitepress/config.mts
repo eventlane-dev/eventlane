@@ -50,6 +50,7 @@ export default defineConfig({
           items: [
             { text: 'Core API', link: '/core/api' },
             { text: 'Configuration', link: '/core/configuration' },
+            { text: 'Typed events', link: '/core/typed-events' },
             { text: 'Recipes', link: '/core/recipes' },
             { text: 'Patterns', link: '/core/patterns' },
           ],
@@ -75,6 +76,7 @@ export default defineConfig({
           items: [
             { text: 'Getting started', link: '/nestjs/getting-started' },
             { text: 'Module, emitters and handlers', link: '/nestjs/guide' },
+            { text: 'Typed events', link: '/nestjs/typed-events' },
             { text: 'Configuration', link: '/nestjs/configuration' },
           ],
         },

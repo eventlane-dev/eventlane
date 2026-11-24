@@ -37,6 +37,7 @@ packages/board-fastify/ @eventlane/board-fastify: Fastify adapter (plugin; serve
 packages/board-nestjs/  @eventlane/board-nestjs: `BoardModule`, mounts the Express or Fastify adapter on the Nest HTTP instance
 examples/express/       plain Express app with the core, no dashboard (runnable: `pnpm --filter @eventlane/example-express start`)
 examples/nestjs/        monolith with two consumers on one topic and the dashboard (runnable: `pnpm --filter @eventlane/example-nestjs start`)
+examples/typed/         typed events: a NestJS app and a plain script (runnable: `pnpm --filter @eventlane/example-typed start`)
 examples/board/         Express app with demo traffic and the board (runnable: `pnpm --filter @eventlane/example-board start`)
 docs/                   user documentation, a VitePress site: core/, nestjs/, dashboard/
 ```

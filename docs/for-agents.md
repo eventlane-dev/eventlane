@@ -68,7 +68,8 @@ async welcome(payload: { id: number }, meta: EventMetadata) {}
 - Retries go only to the consumer that failed. Do not re-emit an event to retry it.
 - In NestJS, pass `topicName` to `@OnLaneEvent` when the module lists several topics.
 - Topics keep about the latest 1 000 000 events by default; set `retention` per topic otherwise.
-- Do not invent features: there are no wildcard event names, no schema validation, no typed event maps and no Redis Cluster support.
+- Types are optional: `new EventLaneBus<AppEvents>()` with `AppEvents = { users: { 'user.created': { id: number } } }` types `emit` and `on`; `TopicEmitter<UserEvents>` and `@OnLaneEvent<UserEvents>('user.created')` in NestJS. Compile time only. See [Typed events](core/typed-events.md) and [in NestJS](nestjs/typed-events.md).
+- Do not invent features: there are no wildcard event names, no schema validation (types are not checked at runtime) and no Redis Cluster support.
 
 ## Where to look
 

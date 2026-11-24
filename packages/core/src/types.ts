@@ -106,6 +106,34 @@ export interface EventMetadata {
   headers: Record<string, string>;
 }
 
+/**
+ * Optional description of your events for the type checker: `topicName` to `eventName` to payload
+ * type, e.g. `{ users: { 'user.created': { id: number } } }`. Use it as the type argument of
+ * `EventLaneBus`. Types are not checked at runtime.
+ */
+// biome-ignore lint/suspicious/noExplicitAny: payloads are intentionally loosely typed
+export type EventMap<E> = { [T in keyof E]: Record<string, any> };
+
+/** The topic names of an event map (any string when the map is `any`). */
+export type TopicName<E> = Extract<keyof E, string>;
+
+/** The event names of one topic or of several (a union of topic names). */
+export type EventName<E, T extends keyof E> = T extends unknown
+  ? Extract<keyof E[T], string>
+  : never;
+
+/** The payload type of an event in an event map. */
+export type EventPayload<E, T extends keyof E, N extends string> = T extends unknown
+  ? N extends keyof E[T]
+    ? E[T][N]
+    : never
+  : never;
+
+/** `emit` arguments after the event name: the payload is optional only if the type allows `undefined`. */
+export type EmitArgs<P> = undefined extends P
+  ? [payload?: P, options?: EmitOptions]
+  : [payload: P, options?: EmitOptions];
+
 // biome-ignore lint/suspicious/noExplicitAny: payloads are intentionally loosely typed
 export type Handler<T = any> = (payload: T, meta: EventMetadata) => Promise<void> | void;
 
